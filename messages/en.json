@@ -37,7 +37,13 @@
   "Sidebar": {
     "appName": "Law Ledger",
     "subtitle": "Client finance office",
-    "logout": "Log out"
+    "logout": "Log out",
+    "signedInAs": "Signed in as",
+    "unnamedUser": "Team member",
+    "darkMode": "Dark",
+    "lightMode": "Light",
+    "useDarkMode": "Switch to dark mode",
+    "useLightMode": "Switch to light mode"
   },
   "Dashboard": {
     "title": "Dashboard",

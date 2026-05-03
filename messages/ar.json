@@ -37,7 +37,13 @@
   "Sidebar": {
     "appName": "دفتر المحاماة",
     "subtitle": "مكتب المالية للعملاء",
-    "logout": "تسجيل الخروج"
+    "logout": "تسجيل الخروج",
+    "signedInAs": "مسجّل الدخول كـ",
+    "unnamedUser": "عضو الفريق",
+    "darkMode": "داكن",
+    "lightMode": "فاتح",
+    "useDarkMode": "التبديل إلى الوضع الداكن",
+    "useLightMode": "التبديل إلى الوضع الفاتح"
   },
   "Dashboard": {
     "title": "لوحة القيادة",

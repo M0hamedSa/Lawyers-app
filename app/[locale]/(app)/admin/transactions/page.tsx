@@ -50,9 +50,13 @@ export default async function AdminTransactionsPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-sm font-semibold uppercase tracking-wide text-brass-700">Admin</p>
-        <h1 className="mt-1 text-3xl font-semibold text-ink-900">All Transactions Log</h1>
+      <div className="min-w-0">
+        <p className="text-sm font-semibold uppercase tracking-wide text-brass-700 dark:text-brass-400">
+          Admin
+        </p>
+        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-ink-900 dark:text-ink-50 sm:text-3xl">
+          All Transactions Log
+        </h1>
       </div>
 
       <TransactionSearch />
@@ -73,9 +77,9 @@ export default async function AdminTransactionsPage({
                 key: "client",
                 header: "Client",
                 cell: (t) => (
-                  <Link 
+                  <Link
                     href={`/clients/${encodeId(t.client_id)}` as Route}
-                    className="font-medium text-ink-900 hover:text-brass-700"
+                    className="font-medium text-ink-900 underline-offset-2 hover:text-brass-700 hover:underline dark:text-ink-100 dark:hover:text-brass-400"
                   >
                     {t.clients.name}
                   </Link>
@@ -84,7 +88,9 @@ export default async function AdminTransactionsPage({
               {
                 key: "creator",
                 header: "Made By",
-                cell: (t) => <span className="text-ink-700">{t.users?.full_name || "Unknown"}</span>,
+                cell: (t) => (
+                  <span className="text-ink-700 dark:text-ink-300">{t.users?.full_name || "Unknown"}</span>
+                ),
               },
               {
                 key: "type",
@@ -94,8 +100,8 @@ export default async function AdminTransactionsPage({
                     className={cn(
                       "inline-flex rounded-md px-2 py-1 text-xs font-semibold capitalize",
                       t.type === "payment"
-                        ? "bg-green-50 text-green-800"
-                        : "bg-red-50 text-red-800",
+                        ? "bg-green-50 text-green-800 dark:bg-green-950/50 dark:text-green-300"
+                        : "bg-red-50 text-red-800 dark:bg-red-950/50 dark:text-red-300",
                     )}
                   >
                     {tCommon(t.type)}
@@ -105,7 +111,9 @@ export default async function AdminTransactionsPage({
               {
                 key: "description",
                 header: t("columns.description"),
-                cell: (t) => <span className="text-ink-900">{t.description}</span>,
+                cell: (t) => (
+                  <span className="break-words text-ink-900 dark:text-ink-100">{t.description}</span>
+                ),
               },
               {
                 key: "amount",
@@ -114,8 +122,10 @@ export default async function AdminTransactionsPage({
                 cell: (t) => (
                   <span
                     className={cn(
-                      "font-semibold",
-                      t.type === "payment" ? "text-green-700" : "text-red-700",
+                      "font-semibold tabular-nums",
+                      t.type === "payment"
+                        ? "text-green-700 dark:text-green-400"
+                        : "text-red-700 dark:text-red-400",
                     )}
                   >
                     {t.type === "payment" ? "+" : "-"}

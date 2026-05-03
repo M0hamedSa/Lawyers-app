@@ -159,9 +159,9 @@ export function UsersManagement({
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
+      <div className="flex justify-stretch sm:justify-end">
         {currentRole === "superadmin" && (
-          <ActionButton onClick={() => setInviteModalOpen(true)}>
+          <ActionButton className="w-full sm:w-auto" onClick={() => setInviteModalOpen(true)}>
             <UserPlus className="size-4 mr-2" />
             Invite New User
           </ActionButton>
@@ -233,7 +233,7 @@ export function UsersManagement({
                   Superadmins cannot change their own role to prevent accidental lockout.
                 </p>
               ) : (
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {(["user", "admin", "superadmin"] as UserRole[]).map((r) => (
                     <button
                       key={r}
@@ -241,10 +241,10 @@ export function UsersManagement({
                       disabled={submitting}
                       onClick={() => changeRole(r)}
                       className={cn(
-                        "flex-1 flex items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition",
+                        "flex min-w-[calc(50%-0.25rem)] flex-1 items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition sm:min-w-0",
                         selectedUser?.role === r
-                          ? "border-ink-900 bg-ink-900 text-white"
-                          : "border-ink-200 text-ink-700 hover:bg-ink-50"
+                          ? "border-ink-900 bg-ink-900 text-white dark:border-brass-500 dark:bg-brass-600 dark:text-ink-900"
+                          : "border-ink-200 text-ink-700 hover:bg-ink-50 dark:border-ink-600 dark:text-ink-300 dark:hover:bg-ink-800"
                       )}
                     >
                       {togglingId === `role-${r}` && <Loader2 className="size-3 animate-spin" />}

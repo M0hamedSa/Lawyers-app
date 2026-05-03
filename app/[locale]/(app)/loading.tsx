@@ -7,7 +7,9 @@ export default function Loading() {
         <div className="absolute size-16 animate-ping rounded-full border-4 border-brass-500/20 opacity-20" />
         <Loader2 className="size-10 animate-spin text-brass-500" />
       </div>
-      <p className="animate-pulse text-sm font-medium text-ink-700">Loading your data...</p>
+      <p className="animate-pulse text-sm font-medium text-ink-700 dark:text-ink-300">
+        Loading your data...
+      </p>
     </div>
   );
 }

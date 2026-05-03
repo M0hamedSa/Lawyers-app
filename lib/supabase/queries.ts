@@ -119,12 +119,12 @@ export async function getCurrentUser() {
 
   const { data, error } = await supabase
     .from("users")
-    .select("id, role")
+    .select("id, role, full_name")
     .eq("id", user.id)
     .single();
 
   if (error) return null;
-  return data as { id: string; role: "superadmin" | "admin" | "user" };
+  return data as { id: string; role: "superadmin" | "admin" | "user"; full_name: string };
 }
 
 export async function getUserRole() {

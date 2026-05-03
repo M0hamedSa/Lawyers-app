@@ -8,6 +8,12 @@
   color: #161611;
 }
 
+.dark {
+  color-scheme: dark;
+  background: #121210;
+  color: #f4f4ee;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -19,6 +25,11 @@ body {
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
+.dark body {
+  background: #121210;
+  color: #f4f4ee;
+}
+
 button,
 input,
 select,
@@ -28,4 +39,9 @@ textarea {
 
 ::selection {
   background: #f2e6c9;
+}
+
+.dark ::selection {
+  background: #755c2d;
+  color: #f4f4ee;
 }

@@ -172,21 +172,24 @@ export function ClientDetailsClient({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+        <div className="min-w-0">
           <Link
             href="/clients"
-            className="inline-flex items-center gap-2 text-sm font-medium text-ink-700 hover:text-brass-700"
+            className="inline-flex items-center gap-2 text-sm font-medium text-ink-700 hover:text-brass-700 dark:text-ink-300 dark:hover:text-brass-400"
           >
-            <ArrowLeft className="size-4" aria-hidden />
+            <ArrowLeft className="size-4 shrink-0" aria-hidden />
             {useTranslations("Clients")("title")}
           </Link>
-          <h1 className="mt-3 text-3xl font-semibold text-ink-900">{client.name}</h1>
-          <p className="mt-1 text-sm text-ink-700">
+          <h1 className="mt-3 break-words text-2xl font-semibold tracking-tight text-ink-900 dark:text-ink-50 sm:text-3xl">
+            {client.name}
+          </h1>
+          <p className="mt-1 text-sm text-ink-700 dark:text-ink-300">
             {client.phone || tCommon("noPhone")} · {client.email || tCommon("noEmail")}
           </p>
         </div>
         <ActionButton
+          className="w-full shrink-0 sm:w-auto"
           onClick={() => {
             setActiveTab("finance");
             setModalOpen(true);
@@ -203,8 +206,8 @@ export function ClientDetailsClient({
         <FinanceMetric label={t("currentBalance")} value={formatCurrency(balance, locale)} tone="balance" />
       </div>
 
-      <div className="border-b border-ink-100">
-        <div className="flex gap-2 overflow-x-auto">
+      <div className="border-b border-ink-100 dark:border-ink-700">
+        <div className="-mx-1 flex gap-1 overflow-x-auto overflow-y-hidden px-1 [-webkit-overflow-scrolling:touch] sm:gap-2">
           {([
             ["overview", t("overview")],
             ["finance", t("finance")],
@@ -215,10 +218,10 @@ export function ClientDetailsClient({
               type="button"
               onClick={() => setActiveTab(tab)}
               className={cn(
-                "border-b-2 px-4 py-3 text-sm font-semibold transition",
+                "shrink-0 whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-semibold transition sm:px-4 sm:py-3",
                 activeTab === tab
-                  ? "border-brass-500 text-ink-900"
-                  : "border-transparent text-ink-700 hover:text-ink-900",
+                  ? "border-brass-500 text-ink-900 dark:border-brass-400 dark:text-ink-50"
+                  : "border-transparent text-ink-700 hover:text-ink-900 dark:text-ink-400 dark:hover:text-ink-100",
               )}
             >
               {label}
@@ -228,7 +231,7 @@ export function ClientDetailsClient({
       </div>
 
       {error ? (
-        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200">
           {error}
         </div>
       ) : null}
@@ -248,15 +251,15 @@ export function ClientDetailsClient({
 
       <Modal title={t("addTransaction")} open={modalOpen} onClose={() => setModalOpen(false)}>
         <form onSubmit={saveTransaction} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <button
               type="button"
               onClick={() => setForm((current) => ({ ...current, type: "payment" }))}
               className={cn(
                 "h-10 rounded-md border text-sm font-semibold",
                 form.type === "payment"
-                  ? "border-green-700 bg-green-50 text-green-800"
-                  : "border-ink-100 text-ink-700 hover:bg-ink-50",
+                  ? "border-green-700 bg-green-50 text-green-800 dark:border-green-600 dark:bg-green-950/40 dark:text-green-300"
+                  : "border-ink-100 text-ink-700 hover:bg-ink-50 dark:border-ink-600 dark:text-ink-300 dark:hover:bg-ink-800",
               )}
             >
               {tCommon("payment")}
@@ -267,8 +270,8 @@ export function ClientDetailsClient({
               className={cn(
                 "h-10 rounded-md border text-sm font-semibold",
                 form.type === "expense"
-                  ? "border-red-700 bg-red-50 text-red-800"
-                  : "border-ink-100 text-ink-700 hover:bg-ink-50",
+                  ? "border-red-700 bg-red-50 text-red-800 dark:border-red-600 dark:bg-red-950/40 dark:text-red-300"
+                  : "border-ink-100 text-ink-700 hover:bg-ink-50 dark:border-ink-600 dark:text-ink-300 dark:hover:bg-ink-800",
               )}
             >
               {tCommon("expense")}
@@ -320,11 +323,16 @@ export function ClientDetailsClient({
               onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
             />
           </Field>
-          <div className="flex justify-end gap-3 pt-2">
-            <ActionButton type="button" variant="secondary" onClick={() => setModalOpen(false)}>
+          <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end sm:gap-3">
+            <ActionButton
+              type="button"
+              variant="secondary"
+              className="w-full sm:w-auto"
+              onClick={() => setModalOpen(false)}
+            >
               {tCommon("cancel")}
             </ActionButton>
-            <ActionButton type="submit" disabled={submitting}>
+            <ActionButton type="submit" className="w-full sm:w-auto" disabled={submitting}>
               {submitting ? (
                 <>
                   <Loader2 className="mr-2 size-4 animate-spin" />
@@ -353,13 +361,13 @@ function FinanceMetric({
   return (
     <Card>
       <CardContent>
-        <p className="text-sm text-ink-700">{label}</p>
+        <p className="text-sm text-ink-700 dark:text-ink-300">{label}</p>
         <p
           className={cn(
-            "mt-2 text-2xl font-semibold",
-            tone === "payment" && "text-green-700",
-            tone === "expense" && "text-red-700",
-            tone === "balance" && "text-ink-900",
+            "mt-2 break-words text-xl font-semibold tabular-nums sm:text-2xl",
+            tone === "payment" && "text-green-700 dark:text-green-400",
+            tone === "expense" && "text-red-700 dark:text-red-400",
+            tone === "balance" && "text-ink-900 dark:text-ink-50",
           )}
         >
           {value}
@@ -403,8 +411,10 @@ function OverviewTab({
               <InfoItem label={t("balance")} value={formatCurrency(balance, locale)} />
               <InfoItem label={t("created")} value={formatDate(client.created_at, locale)} />
             </dl>
-            <div className="rounded-lg bg-ink-50/50 p-4">
-              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-ink-500">Balance History</h4>
+            <div className="rounded-lg bg-ink-50/50 p-4 dark:bg-ink-800/40">
+              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-ink-500 dark:text-ink-400">
+                Balance History
+              </h4>
               <ClientFinanceChart transactions={transactions} />
             </div>
           </div>
@@ -417,8 +427,10 @@ function OverviewTab({
 function InfoItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs font-semibold uppercase tracking-wide text-ink-700">{label}</dt>
-      <dd className="mt-1 text-sm font-medium text-ink-900">{value}</dd>
+      <dt className="text-xs font-semibold uppercase tracking-wide text-ink-700 dark:text-ink-400">
+        {label}
+      </dt>
+      <dd className="mt-1 break-words text-sm font-medium text-ink-900 dark:text-ink-100">{value}</dd>
     </div>
   );
 }
@@ -443,7 +455,7 @@ function FinanceTab({
     <Card>
       <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <CardTitle>{t("financialLedger")}</CardTitle>
-        <ActionButton onClick={onAdd}>
+        <ActionButton className="w-full shrink-0 sm:w-auto" onClick={onAdd}>
           <Plus className="size-4" aria-hidden />
           {t("addTransaction")}
         </ActionButton>
@@ -467,8 +479,8 @@ function FinanceTab({
                   className={cn(
                     "inline-flex rounded-md px-2 py-1 text-xs font-semibold capitalize",
                     transaction.type === "payment"
-                      ? "bg-green-50 text-green-800"
-                      : "bg-red-50 text-red-800",
+                      ? "bg-green-50 text-green-800 dark:bg-green-950/50 dark:text-green-300"
+                      : "bg-red-50 text-red-800 dark:bg-red-950/50 dark:text-red-300",
                   )}
                 >
                   {tCommon(transaction.type)}
@@ -478,7 +490,9 @@ function FinanceTab({
             {
               key: "description",
               header: tTrans("columns.description"),
-              cell: (transaction) => <span className="text-ink-900">{transaction.description}</span>,
+              cell: (transaction) => (
+                <span className="break-words text-ink-900 dark:text-ink-100">{transaction.description}</span>
+              ),
             },
             {
               key: "voucher",
@@ -496,8 +510,10 @@ function FinanceTab({
               cell: (transaction) => (
                 <span
                   className={cn(
-                    "font-semibold",
-                    transaction.type === "payment" ? "text-green-700" : "text-red-700",
+                    "font-semibold tabular-nums",
+                    transaction.type === "payment"
+                      ? "text-green-700 dark:text-green-400"
+                      : "text-red-700 dark:text-red-400",
                   )}
                 >
                   {transaction.type === "payment" ? "+" : "-"}
@@ -517,7 +533,7 @@ function FilesTab() {
   return (
     <Card>
       <CardContent>
-        <div className="flex min-h-52 flex-col items-center justify-center gap-3 text-center text-ink-700">
+        <div className="flex min-h-52 flex-col items-center justify-center gap-3 text-center text-ink-700 dark:text-ink-300">
           <FileText className="size-8" aria-hidden />
           <p className="text-sm font-medium">{t("fileStorageText")}</p>
         </div>

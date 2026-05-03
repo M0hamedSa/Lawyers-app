@@ -7,6 +7,7 @@ import { Scale, Loader2 } from "lucide-react";
 import { ActionButton } from "@/components/ui/action-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Field, inputClassName } from "@/components/ui/field";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { signInAction } from "./actions";
 
 export default function LoginPage() {
@@ -32,16 +33,16 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-ink-50 px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen items-center justify-center bg-ink-50 px-4 py-12 sm:px-6 lg:px-8 dark:bg-[#121210]">
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center">
-          <div className="flex size-12 items-center justify-center rounded-lg bg-ink-900 text-white">
+          <div className="flex size-12 items-center justify-center rounded-lg bg-ink-900 text-white dark:bg-brass-600">
             <Scale className="size-6" aria-hidden />
           </div>
-          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-ink-900">
+          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-ink-900 dark:text-ink-50">
             {t("title")}
           </h2>
-          <p className="mt-2 text-center text-sm text-ink-700">
+          <p className="mt-2 text-center text-sm text-ink-700 dark:text-ink-300">
             {t("subtitle")}
           </p>
         </div>
@@ -90,6 +91,10 @@ export default function LoginPage() {
             </form>
           </CardContent>
         </Card>
+
+        <div className="mx-auto w-full max-w-md pt-4">
+          <ThemeToggle />
+        </div>
       </div>
     </div>
   );

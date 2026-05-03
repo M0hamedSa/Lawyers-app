@@ -160,13 +160,17 @@ export function ClientsPageClient({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-wide text-brass-700">{t("title")}</p>
-          <h1 className="mt-1 text-3xl font-semibold text-ink-900">{t("heading")}</h1>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold uppercase tracking-wide text-brass-700 dark:text-brass-400">
+            {t("title")}
+          </p>
+          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-ink-900 dark:text-ink-50 sm:text-3xl">
+            {t("heading")}
+          </h1>
         </div>
         {(userRole === "admin" || userRole === "superadmin") && (
-          <ActionButton onClick={openCreate}>
+          <ActionButton className="w-full shrink-0 sm:w-auto" onClick={openCreate}>
             <Plus className="size-4" aria-hidden />
             {t("newClient")}
           </ActionButton>
@@ -174,7 +178,7 @@ export function ClientsPageClient({
       </div>
 
       {error ? (
-        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200">
           {error}
         </div>
       ) : null}
@@ -192,7 +196,7 @@ export function ClientsPageClient({
                 cell: (client) => (
                   <Link
                     href={`/clients/${encodeId(client.id)}` as Route}
-                    className="font-semibold text-ink-900 hover:text-brass-700"
+                    className="font-semibold text-ink-900 underline-offset-2 hover:text-brass-700 hover:underline dark:text-ink-50 dark:hover:text-brass-400"
                   >
                     {client.name}
                   </Link>
@@ -202,7 +206,7 @@ export function ClientsPageClient({
                 key: "contact",
                 header: t("columns.contact"),
                 cell: (client) => (
-                  <div className="space-y-1 text-ink-700">
+                  <div className="space-y-1 text-ink-700 dark:text-ink-300">
                     <p>{client.phone || tCommon("noPhone")}</p>
                     <p>{client.email || tCommon("noEmail")}</p>
                   </div>
@@ -211,29 +215,41 @@ export function ClientsPageClient({
               {
                 key: "payments",
                 header: t("columns.payments"),
-                cell: (client) => <span className="font-medium text-green-700">{formatCurrency(client.total_payments, locale)}</span>,
+                cell: (client) => (
+                  <span className="font-medium tabular-nums text-green-700 dark:text-green-400">
+                    {formatCurrency(client.total_payments, locale)}
+                  </span>
+                ),
               },
               {
                 key: "expenses",
                 header: t("columns.expenses"),
-                cell: (client) => <span className="font-medium text-red-700">{formatCurrency(client.total_expenses, locale)}</span>,
+                cell: (client) => (
+                  <span className="font-medium tabular-nums text-red-700 dark:text-red-400">
+                    {formatCurrency(client.total_expenses, locale)}
+                  </span>
+                ),
               },
               {
                 key: "balance",
                 header: t("columns.balance"),
-                cell: (client) => <span className="font-semibold">{formatCurrency(client.balance, locale)}</span>,
+                cell: (client) => (
+                  <span className="font-semibold tabular-nums text-ink-900 dark:text-ink-50">
+                    {formatCurrency(client.balance, locale)}
+                  </span>
+                ),
               },
               {
                 key: "actions",
                 header: "",
                 className: "text-end",
                 cell: (client) => (
-                  <div className="flex justify-end gap-2">
+                  <div className="flex flex-wrap justify-end gap-2 sm:justify-end">
                     {(userRole === "admin" || userRole === "superadmin") && (
                       <button
                         type="button"
                         onClick={() => openEdit(client)}
-                        className="inline-flex size-9 items-center justify-center rounded-md border border-ink-100 hover:bg-ink-50"
+                        className="inline-flex size-9 items-center justify-center rounded-md border border-ink-100 hover:bg-ink-50 dark:border-ink-600 dark:hover:bg-ink-800"
                         aria-label={tCommon("edit")}
                       >
                         <Edit2 className="size-4" aria-hidden />
@@ -243,7 +259,7 @@ export function ClientsPageClient({
                       <button
                         type="button"
                         onClick={() => openDeleteConfirm(client.id)}
-                        className="inline-flex size-9 items-center justify-center rounded-md border border-red-200 text-red-700 hover:bg-red-50"
+                        className="inline-flex size-9 items-center justify-center rounded-md border border-red-200 text-red-700 hover:bg-red-50 dark:border-red-900/50 dark:text-red-300 dark:hover:bg-red-950/40"
                         aria-label={tCommon("delete")}
                       >
                         <Trash2 className="size-4" aria-hidden />

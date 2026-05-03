@@ -14,8 +14,12 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm font-semibold uppercase tracking-wide text-brass-700">{t("title")}</p>
-        <h1 className="mt-1 text-3xl font-semibold text-ink-900">{t("title")}</h1>
+        <p className="text-sm font-semibold uppercase tracking-wide text-brass-700 dark:text-brass-400">
+          {t("title")}
+        </p>
+        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-ink-900 dark:text-ink-50 sm:text-3xl">
+          {t("title")}
+        </h1>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -41,8 +45,10 @@ function MetricCard({ label, value }: { label: string; value: string }) {
   return (
     <Card>
       <CardContent>
-        <p className="text-sm text-ink-700">{label}</p>
-        <p className="mt-2 text-2xl font-semibold text-ink-900">{value}</p>
+        <p className="text-sm text-ink-700 dark:text-ink-300">{label}</p>
+        <p className="mt-2 break-words text-xl font-semibold tabular-nums text-ink-900 dark:text-ink-50 sm:text-2xl">
+          {value}
+        </p>
       </CardContent>
     </Card>
   );
