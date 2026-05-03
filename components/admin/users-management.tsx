@@ -9,6 +9,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { ActionButton } from "@/components/ui/action-button";
 import { Modal } from "@/components/ui/modal";
 import { useRouter } from "@/i18n/routing";
+import { useLocale } from "next-intl";
 import { UserPlus, Users, Mail, Loader2 } from "lucide-react";
 import { Field, inputClassName } from "@/components/ui/field";
 
@@ -36,6 +37,7 @@ export function UsersManagement({
   currentUserId: string;
 }) {
   const router = useRouter();
+  const locale = useLocale();
   const supabase = useMemo(() => createClient(), []);
   const [users, setUsers] = useState<UserWithAccess[]>(initialUsers);
   const [selectedUser, setSelectedUser] = useState<UserWithAccess | null>(null);
@@ -78,13 +80,18 @@ export function UsersManagement({
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
+      const appBase =
+        (process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
+          (typeof window !== "undefined" ? window.location.origin : "")) || "";
+      const redirectTo = appBase ? `${appBase}/${locale}/set-password` : undefined;
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/invite-user`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${session?.access_token}`,
         },
-        body: JSON.stringify(inviteForm),
+        body: JSON.stringify({ ...inviteForm, redirectTo }),
       });
 
       const result = await response.json();

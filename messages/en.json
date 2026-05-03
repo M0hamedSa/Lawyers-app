@@ -21,6 +21,19 @@
     "submit": "Sign in",
     "error": "Invalid email or password"
   },
+  "SetPassword": {
+    "title": "Set your password",
+    "subtitle": "Choose a password to finish activating your account.",
+    "password": "New password",
+    "confirm": "Confirm password",
+    "submit": "Save password and continue",
+    "submitting": "Saving...",
+    "tooShort": "Password must be at least 8 characters.",
+    "mismatch": "Passwords do not match.",
+    "invalidTitle": "Link not valid",
+    "invalidLink": "This invitation link is invalid or has expired. Ask an admin to send a new invite, or sign in if you already have a password.",
+    "goToLogin": "Go to sign in"
+  },
   "Sidebar": {
     "appName": "Law Ledger",
     "subtitle": "Client finance office",
