@@ -1,0 +1,299 @@
+-- Law Ledger MVP schema for Supabase
+-- Run this in the Supabase SQL editor after creating a project.
+
+create extension if not exists "pgcrypto";
+
+do $$
+begin
+  create type public.user_role as enum ('superadmin', 'admin', 'user');
+exception
+  when duplicate_object then null;
+end $$;
+
+do $$
+begin
+  create type public.transaction_type as enum ('payment', 'expense');
+exception
+  when duplicate_object then null;
+end $$;
+
+do $$
+begin
+  create type public.voucher_type as enum ('cash', 'bank_transfer', 'check', 'card', 'other');
+exception
+  when duplicate_object then null;
+end $$;
+
+create table if not exists public.users (
+  id uuid primary key references auth.users(id) on delete cascade,
+  full_name text not null,
+  role public.user_role not null default 'user',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.clients (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  phone text,
+  email text,
+  created_by uuid references public.users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.client_access (
+  id uuid primary key default gen_random_uuid(),
+  client_id uuid not null references public.clients(id) on delete cascade,
+  user_id uuid not null references public.users(id) on delete cascade,
+  created_at timestamptz default now(),
+  unique(client_id, user_id)
+);
+
+create table if not exists public.transactions (
+  id uuid primary key default gen_random_uuid(),
+  client_id uuid not null references public.clients(id) on delete cascade,
+  type public.transaction_type not null,
+  amount numeric(12, 2) not null check (amount > 0),
+  description text not null,
+  voucher_type public.voucher_type not null default 'cash',
+  date date not null default current_date,
+  created_by uuid references public.users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists clients_name_idx on public.clients using gin (to_tsvector('simple', name));
+create index if not exists transactions_client_id_date_idx on public.transactions (client_id, date desc);
+create index if not exists transactions_date_idx on public.transactions (date);
+
+create or replace function public.set_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists users_set_updated_at on public.users;
+create trigger users_set_updated_at
+before update on public.users
+for each row execute function public.set_updated_at();
+
+drop trigger if exists clients_set_updated_at on public.clients;
+create trigger clients_set_updated_at
+before update on public.clients
+for each row execute function public.set_updated_at();
+
+drop trigger if exists transactions_set_updated_at on public.transactions;
+create trigger transactions_set_updated_at
+before update on public.transactions
+for each row execute function public.set_updated_at();
+
+create or replace view public.client_financial_summary as
+select
+  c.id as client_id,
+  coalesce(sum(t.amount) filter (where t.type = 'payment'), 0)::numeric(12, 2) as total_payments,
+  coalesce(sum(t.amount) filter (where t.type = 'expense'), 0)::numeric(12, 2) as total_expenses,
+  (
+    coalesce(sum(t.amount) filter (where t.type = 'payment'), 0)
+    - coalesce(sum(t.amount) filter (where t.type = 'expense'), 0)
+  )::numeric(12, 2) as balance
+from public.clients c
+left join public.transactions t on t.client_id = c.id
+group by c.id;
+
+alter table public.users enable row level security;
+alter table public.clients enable row level security;
+alter table public.client_access enable row level security;
+alter table public.transactions enable row level security;
+
+-- Users policies
+drop policy if exists "Authenticated users can read firm users" on public.users;
+create policy "Authenticated users can read firm users"
+on public.users for select
+to authenticated
+using (true);
+
+drop policy if exists "Users can insert own profile" on public.users;
+create policy "Users can insert own profile"
+on public.users for insert
+to authenticated
+with check (id = auth.uid());
+
+drop policy if exists "Users can update own profile" on public.users;
+create policy "Users can update own profile"
+on public.users for update
+to authenticated
+using (
+  id = auth.uid() 
+  or 
+  exists (
+    select 1 from public.users u 
+    where u.id = auth.uid() and u.role = 'superadmin'
+  )
+)
+with check (
+  id = auth.uid() 
+  or 
+  exists (
+    select 1 from public.users u 
+    where u.id = auth.uid() and u.role = 'superadmin'
+  )
+);
+
+-- Client Access policies
+drop policy if exists "Admins can manage client access" on public.client_access;
+create policy "Admins can manage client access"
+on public.client_access
+for all
+to authenticated
+using (
+  exists (
+    select 1 from public.users u
+    where u.id = auth.uid() and u.role in ('admin', 'superadmin')
+  )
+);
+
+drop policy if exists "Users can read client access" on public.client_access;
+create policy "Users can read client access"
+on public.client_access for select
+to authenticated
+using (true);
+
+-- Clients policies
+drop policy if exists "Users can read assigned clients" on public.clients;
+create policy "Users can read assigned clients"
+on public.clients for select
+to authenticated
+using (
+  exists (
+    select 1 from public.users u
+    where u.id = auth.uid() and u.role in ('admin', 'superadmin')
+  )
+  or
+  exists (
+    select 1 from public.client_access ca
+    where ca.client_id = public.clients.id and ca.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Admin only can create clients" on public.clients;
+create policy "Admin only can create clients"
+on public.clients for insert
+to authenticated
+with check (
+  exists (
+    select 1 from public.users u
+    where u.id = auth.uid() and u.role in ('admin', 'superadmin')
+  )
+);
+
+drop policy if exists "Authenticated users can update clients" on public.clients;
+create policy "Admins can update clients"
+on public.clients for update
+to authenticated
+using (
+  exists (
+    select 1 from public.users u
+    where u.id = auth.uid() and u.role in ('admin', 'superadmin')
+  )
+)
+with check (
+  exists (
+    select 1 from public.users u
+    where u.id = auth.uid() and u.role in ('admin', 'superadmin')
+  )
+);
+
+drop policy if exists "Admins can delete clients" on public.clients;
+create policy "Admins can delete clients"
+on public.clients for delete
+to authenticated
+using (
+  exists (
+    select 1 from public.users u
+    where u.id = auth.uid() and u.role in ('admin', 'superadmin')
+  )
+);
+
+-- Transactions policies
+drop policy if exists "Users can read transactions of assigned clients" on public.transactions;
+create policy "Users can read transactions of assigned clients"
+on public.transactions for select
+to authenticated
+using (
+  exists (
+    select 1 from public.users u
+    where u.id = auth.uid() and u.role in ('admin', 'superadmin')
+  )
+  or
+  exists (
+    select 1 from public.client_access ca
+    where ca.client_id = public.transactions.client_id and ca.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Authenticated users can create transactions" on public.transactions;
+create policy "Authenticated users can create transactions"
+on public.transactions for insert
+to authenticated
+with check (created_by = auth.uid());
+
+drop policy if exists "Authenticated users can update transactions" on public.transactions;
+create policy "Authenticated users can update transactions"
+on public.transactions for update
+to authenticated
+using (true)
+with check (true);
+
+drop policy if exists "Admins can delete transactions" on public.transactions;
+create policy "Admins can delete transactions"
+on public.transactions for delete
+to authenticated
+using (
+  exists (
+    select 1 from public.users u
+    where u.id = auth.uid() and u.role in ('admin', 'superadmin')
+  )
+);
+
+do $$
+begin
+  alter publication supabase_realtime add table public.clients;
+exception
+  when duplicate_object then null;
+  when undefined_object then null;
+end $$;
+
+do $$
+begin
+  alter publication supabase_realtime add table public.transactions;
+exception
+  when duplicate_object then null;
+  when undefined_object then null;
+end $$;
+
+-- Automatically create a profile for new users
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  insert into public.users (id, full_name, role)
+  values (
+    new.id, 
+    coalesce(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)), 
+    coalesce((new.raw_user_meta_data->>'role')::public.user_role, 'user'::public.user_role)
+  );
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();

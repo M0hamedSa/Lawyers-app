@@ -1,0 +1,155 @@
+import { createClient } from "@/lib/supabase/server";
+import type { ClientWithSummary, LedgerTransaction } from "@/lib/supabase/types";
+
+type ClientRow = {
+  id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  transactions: { amount: number; type: "payment" | "expense" }[];
+};
+
+function withSummary(client: ClientRow): ClientWithSummary {
+  const totals = client.transactions.reduce(
+    (acc, transaction) => {
+      if (transaction.type === "payment") acc.total_payments += Number(transaction.amount);
+      if (transaction.type === "expense") acc.total_expenses += Number(transaction.amount);
+      return acc;
+    },
+    { total_payments: 0, total_expenses: 0 },
+  );
+
+  return {
+    id: client.id,
+    name: client.name,
+    phone: client.phone,
+    email: client.email,
+    created_by: client.created_by,
+    created_at: client.created_at,
+    updated_at: client.updated_at,
+    total_payments: totals.total_payments,
+    total_expenses: totals.total_expenses,
+    balance: totals.total_payments - totals.total_expenses,
+  };
+}
+
+export async function getClients() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("clients")
+    .select("*, transactions(amount, type)")
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((client) => withSummary(client as ClientRow));
+}
+
+export async function getClient(id: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("clients")
+    .select("*, transactions(amount, type)")
+    .eq("id", id)
+    .single();
+
+  if (error) throw new Error(error.message);
+  return withSummary(data as ClientRow);
+}
+
+export async function getClientTransactions(clientId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("*")
+    .eq("client_id", clientId)
+    .order("date", { ascending: false })
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(error.message);
+  return (data ?? []) as LedgerTransaction[];
+}
+
+export async function getDashboardData() {
+  const clients = await getClients();
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("date, amount, type")
+    .order("date", { ascending: true });
+
+  if (error) throw new Error(error.message);
+
+  const byMonth = new Map<string, { month: string; payments: number; expenses: number }>();
+  for (const transaction of data ?? []) {
+    const month = String(transaction.date).slice(0, 7);
+    const row = byMonth.get(month) ?? { month, payments: 0, expenses: 0 };
+    if (transaction.type === "payment") row.payments += Number(transaction.amount);
+    if (transaction.type === "expense") row.expenses += Number(transaction.amount);
+    byMonth.set(month, row);
+  }
+
+  return {
+    clients,
+    totalClients: clients.length,
+    totalBalance: clients.reduce((sum, client) => sum + client.balance, 0),
+    totalPayments: clients.reduce((sum, client) => sum + client.total_payments, 0),
+    totalExpenses: clients.reduce((sum, client) => sum + client.total_expenses, 0),
+    chartData: Array.from(byMonth.values()),
+  };
+}
+export async function getAllTransactions() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("*, clients(name), users!transactions_created_by_fkey(full_name)")
+    .order("date", { ascending: false })
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(error.message);
+  return data as (LedgerTransaction & { clients: { name: string }; users: { full_name: string } })[];
+}
+
+export async function getCurrentUser() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data, error } = await supabase
+    .from("users")
+    .select("id, role")
+    .eq("id", user.id)
+    .single();
+
+  if (error) return null;
+  return data as { id: string; role: "superadmin" | "admin" | "user" };
+}
+
+export async function getUserRole() {
+  const user = await getCurrentUser();
+  return user?.role || null;
+}
+
+export async function getAllUsers() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("users")
+    .select("*, client_access(client_id)")
+    .order("full_name", { ascending: true });
+
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export async function getAdminClients() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("clients")
+    .select("id, name")
+    .order("name", { ascending: true });
+
+  if (error) throw new Error(error.message);
+  return data;
+}

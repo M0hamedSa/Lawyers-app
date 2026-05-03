@@ -1,0 +1,96 @@
+{
+  "Common": {
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "saving": "جاري الحفظ...",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "noPhone": "لا يوجد هاتف",
+    "noEmail": "لا يوجد بريد إلكتروني",
+    "amount": "المبلغ",
+    "date": "التاريخ",
+    "description": "الوصف",
+    "payment": "دفعة",
+    "expense": "مصروف"
+  },
+  "Login": {
+    "title": "تسجيل الدخول إلى دفتر المحاماة",
+    "subtitle": "مرحباً بك مجدداً، يرجى إدخال بيانات الاعتماد",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "submit": "تسجيل الدخول",
+    "error": "البريد الإلكتروني أو كلمة المرور غير صحيحة"
+  },
+  "Sidebar": {
+    "appName": "دفتر المحاماة",
+    "subtitle": "مكتب المالية للعملاء",
+    "logout": "تسجيل الخروج"
+  },
+  "Dashboard": {
+    "title": "لوحة القيادة",
+    "totalClients": "إجمالي العملاء",
+    "totalBalance": "الرصيد الإجمالي",
+    "totalPayments": "إجمالي الدفعات",
+    "totalExpenses": "إجمالي المصروفات"
+  },
+  "Clients": {
+    "title": "العملاء",
+    "heading": "حسابات العملاء",
+    "newClient": "عميل جديد",
+    "editClient": "تعديل بيانات العميل",
+    "deleteClient": "حذف العميل",
+    "deleteConfirm": "هل أنت متأكد من حذف هذا العميل وجميع المعاملات المرتبطة به؟",
+    "empty": "لا يوجد عملاء بعد.",
+    "columns": {
+      "client": "العميل",
+      "contact": "التواصل",
+      "payments": "الدفعات",
+      "expenses": "المصروفات",
+      "balance": "الرصيد"
+    },
+    "form": {
+      "name": "الاسم",
+      "phone": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "saveClient": "حفظ العميل"
+    }
+  },
+  "ClientDetails": {
+    "overview": "نظرة عامة",
+    "finance": "المالية",
+    "files": "الملفات",
+    "addTransaction": "إضافة معاملة",
+    "totalPayments": "إجمالي الدفعات",
+    "totalExpenses": "إجمالي المصروفات",
+    "currentBalance": "الرصيد الحالي",
+    "clientOverview": "نظرة عامة على العميل",
+    "transactions": "المعاملات",
+    "balance": "الرصيد",
+    "created": "تاريخ الإنشاء",
+    "financialLedger": "دفتر الأستاذ المالي",
+    "emptyLedger": "لا يوجد قيود دفترية بعد.",
+    "fileStorageText": "يمكن ربط تخزين الملفات مع Supabase Storage."
+  },
+  "Transaction": {
+    "saveTransaction": "حفظ المعاملة",
+    "voucherType": "نوع السند",
+    "columns": {
+      "date": "التاريخ",
+      "type": "النوع",
+      "description": "البيان (الوصف)",
+      "voucher": "السند",
+      "amount": "المبلغ"
+    },
+    "vouchers": {
+      "cash": "نقدي",
+      "bank_transfer": "تحويل بنكي",
+      "check": "شيك",
+      "card": "بطاقة",
+      "other": "أخرى"
+    },
+    "search": "بحث في المعاملات...",
+    "filterByDate": "تصفية حسب التاريخ",
+    "allDates": "جميع التواريخ",
+    "noResults": "لا توجد معاملات تطابق بحثك."
+  }
+}
