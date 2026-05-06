@@ -6,6 +6,7 @@ type ClientRow = {
   name: string;
   phone: string | null;
   email: string | null;
+  profit: number | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -27,6 +28,7 @@ function withSummary(client: ClientRow): ClientWithSummary {
     name: client.name,
     phone: client.phone,
     email: client.email,
+    profit: client.profit,
     created_by: client.created_by,
     created_at: client.created_at,
     updated_at: client.updated_at,
@@ -104,12 +106,12 @@ export async function getAllTransactions() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("transactions")
-    .select("*, clients(name), users!transactions_created_by_fkey(full_name)")
+    .select("*, clients(name, profit), users!transactions_created_by_fkey(full_name)")
     .order("date", { ascending: false })
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
-  return data as (LedgerTransaction & { clients: { name: string }; users: { full_name: string } })[];
+  return data as (LedgerTransaction & { clients: { name: string; profit: number | null }; users: { full_name: string } })[];
 }
 
 export async function getCurrentUser() {

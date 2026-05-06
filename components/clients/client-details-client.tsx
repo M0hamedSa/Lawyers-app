@@ -17,7 +17,12 @@ import type {
   VoucherType,
 } from "@/lib/supabase/types";
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
-import { ClientFinanceChart } from "./client-finance-chart";
+import { ExportTransactionsButton } from "@/components/admin/export-transactions-button";
+import { 
+  TransactionDistributionChart, 
+  IncomeExpenseBarChart, 
+  BalanceHistoryChart 
+} from "@/components/charts/transaction-charts";
 
 type Tab = "overview" | "finance" | "files";
 
@@ -49,17 +54,20 @@ const voucherLabels: Record<VoucherType, string> = {
 export function ClientDetailsClient({
   client,
   initialTransactions,
+  userRole,
 }: {
   client: ClientWithSummary;
   initialTransactions: LedgerTransaction[];
+  userRole: "superadmin" | "admin" | "user" | null;
 }) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
   const t = useTranslations("ClientDetails");
+  const tClients = useTranslations("Clients");
   const tCommon = useTranslations("Common");
   const tTrans = useTranslations("Transaction");
   const locale = useLocale();
-  
+
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [transactions, setTransactions] = useState(initialTransactions);
   const [modalOpen, setModalOpen] = useState(false);
@@ -120,7 +128,14 @@ export function ClientDetailsClient({
     },
     { payments: 0, expenses: 0 },
   );
-  const balance = totals.payments - totals.expenses;
+
+  let balance = totals.payments - totals.expenses;
+  const profitToDeduct = userRole === "superadmin" ? Number(client.profit || 0) : 0;
+
+  if (profitToDeduct > 0) {
+    totals.payments = Math.max(0, totals.payments - profitToDeduct);
+    balance = balance - profitToDeduct;
+  }
 
   async function saveTransaction(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -188,21 +203,27 @@ export function ClientDetailsClient({
             {client.phone || tCommon("noPhone")} · {client.email || tCommon("noEmail")}
           </p>
         </div>
-        <ActionButton
-          className="w-full shrink-0 sm:w-auto"
-          onClick={() => {
-            setActiveTab("finance");
-            setModalOpen(true);
-          }}
-        >
-          <Plus className="size-4" aria-hidden />
-          {t("addTransaction")}
-        </ActionButton>
+        <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">
+          <ExportTransactionsButton clientId={client.id} />
+          <ActionButton
+            className="w-full shrink-0 sm:w-auto"
+            onClick={() => {
+              setActiveTab("finance");
+              setModalOpen(true);
+            }}
+          >
+            <Plus className="size-4" aria-hidden />
+            {t("addTransaction")}
+          </ActionButton>
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className={cn("grid gap-4", userRole === "superadmin" ? "md:grid-cols-4" : "md:grid-cols-3")}>
         <FinanceMetric label={t("totalPayments")} value={formatCurrency(totals.payments, locale)} tone="payment" />
         <FinanceMetric label={t("totalExpenses")} value={formatCurrency(totals.expenses, locale)} tone="expense" />
+        {userRole === "superadmin" && (
+          <FinanceMetric label={tClients("form.profit") || "Profit"} value={formatCurrency(Number(client.profit || 0), locale)} tone="payment" />
+        )}
         <FinanceMetric label={t("currentBalance")} value={formatCurrency(balance, locale)} tone="balance" />
       </div>
 
@@ -237,11 +258,12 @@ export function ClientDetailsClient({
       ) : null}
 
       {activeTab === "overview" ? (
-        <OverviewTab 
-          client={client} 
-          balance={balance} 
-          transactionCount={transactions.length} 
-          transactions={transactions} 
+        <OverviewTab
+          client={client}
+          balance={balance}
+          transactionCount={transactions.length}
+          transactions={transactions}
+          userRole={userRole}
         />
       ) : null}
       {activeTab === "finance" ? (
@@ -382,17 +404,19 @@ function OverviewTab({
   balance,
   transactionCount,
   transactions,
+  userRole,
 }: {
   client: ClientWithSummary;
   balance: number;
   transactionCount: number;
   transactions: LedgerTransaction[];
+  userRole: string | null;
 }) {
   const t = useTranslations("ClientDetails");
   const tClients = useTranslations("Clients");
   const tCommon = useTranslations("Common");
   const locale = useLocale();
-  
+
   return (
     <div className="space-y-6">
       <Card>
@@ -407,15 +431,35 @@ function OverviewTab({
             <InfoItem label={t("transactions")} value={String(transactionCount)} />
           </dl>
           <div className="mt-6 border-t border-ink-100 pt-6">
-            <dl className="mb-6 grid gap-4 sm:grid-cols-2">
+            <dl className={cn("mb-6 grid gap-4", userRole === "superadmin" ? "sm:grid-cols-3" : "sm:grid-cols-2")}>
               <InfoItem label={t("balance")} value={formatCurrency(balance, locale)} />
+              {userRole === "superadmin" && (
+                <InfoItem label={tClients("form.profit") || "Profit"} value={formatCurrency(Number(client.profit || 0), locale)} />
+              )}
               <InfoItem label={t("created")} value={formatDate(client.created_at, locale)} />
             </dl>
-            <div className="rounded-lg bg-ink-50/50 p-4 dark:bg-ink-800/40">
-              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-ink-500 dark:text-ink-400">
-                Balance History
-              </h4>
-              <ClientFinanceChart transactions={transactions} />
+            <div className="mt-8 space-y-8 border-t border-ink-100 pt-8">
+              <div className="grid gap-6 lg:grid-cols-2">
+                <div className="rounded-xl border border-ink-100 bg-ink-50/30 p-4 dark:border-ink-800 dark:bg-ink-900/20">
+                  <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-ink-500 dark:text-ink-400">
+                    {useTranslations("Charts")("incomeExpense")}
+                  </h4>
+                  <IncomeExpenseBarChart transactions={transactions} />
+                </div>
+                <div className="rounded-xl border border-ink-100 bg-ink-50/30 p-4 dark:border-ink-800 dark:bg-ink-900/20">
+                  <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-ink-500 dark:text-ink-400">
+                    {useTranslations("Charts")("volumeDistribution")}
+                  </h4>
+                  <TransactionDistributionChart transactions={transactions} />
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-ink-100 bg-ink-50/30 p-4 dark:border-ink-800 dark:bg-ink-900/20">
+                <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-ink-500 dark:text-ink-400">
+                  {useTranslations("Charts")("balanceHistory")}
+                </h4>
+                <BalanceHistoryChart transactions={transactions} />
+              </div>
             </div>
           </div>
         </CardContent>
@@ -446,7 +490,7 @@ function FinanceTab({
   const tTrans = useTranslations("Transaction");
   const tCommon = useTranslations("Common");
   const locale = useLocale();
-  const sortedTransactions = useMemo(() => 
+  const sortedTransactions = useMemo(() =>
     [...transactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
     [transactions]
   );

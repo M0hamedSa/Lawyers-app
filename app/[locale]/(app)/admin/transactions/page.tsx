@@ -11,15 +11,20 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 import { TransactionSearch } from "@/components/admin/transaction-search";
+import { ExportTransactionsButton } from "@/components/admin/export-transactions-button";
+import { 
+  IncomeExpenseBarChart, 
+  TransactionDistributionChart 
+} from "@/components/charts/transaction-charts";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminTransactionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ query?: string; date?: string }>;
+  searchParams: Promise<{ query?: string; date?: string; type?: string }>;
 }) {
-  const { query, date } = await searchParams;
+  const { query, date, type } = await searchParams;
   const role = await getUserRole();
   
   if (role !== "admin" && role !== "superadmin") {
@@ -44,28 +49,56 @@ export default async function AdminTransactionsPage({
     transactions = transactions.filter(t => t.date === date);
   }
 
+  if (type && (type === 'payment' || type === 'expense')) {
+    transactions = transactions.filter(t => t.type === type);
+  }
+
   const locale = await getLocale();
   const t = await getTranslations("Transaction");
   const tCommon = await getTranslations("Common");
+  const tAdmin = await getTranslations("Admin");
+  const tCharts = await getTranslations("Charts");
 
   return (
     <div className="space-y-6">
-      <div className="min-w-0">
-        <p className="text-sm font-semibold uppercase tracking-wide text-brass-700 dark:text-brass-400">
-          Admin
-        </p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-ink-900 dark:text-ink-50 sm:text-3xl">
-          All Transactions Log
-        </h1>
+      <div className="min-w-0 flex items-end justify-between">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-wide text-brass-700 dark:text-brass-400">
+            {tAdmin("title")}
+          </p>
+          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-ink-900 dark:text-ink-50 sm:text-3xl">
+            {tAdmin("transactionsLog")}
+          </h1>
+        </div>
+        <ExportTransactionsButton />
       </div>
 
       <TransactionSearch />
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardContent className="pt-6">
+            <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-ink-500 dark:text-ink-400">
+              {tCharts("systemIncomeExpense")}
+            </h3>
+            <IncomeExpenseBarChart transactions={transactions} />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-ink-500 dark:text-ink-400">
+              {tCharts("distribution")}
+            </h3>
+            <TransactionDistributionChart transactions={transactions} />
+          </CardContent>
+        </Card>
+      </div>
 
       <Card>
         <CardContent>
           <DataTable
             data={transactions}
-            empty="No transactions found."
+            empty={t("noResults")}
             getRowKey={(t) => t.id}
             columns={[
               {

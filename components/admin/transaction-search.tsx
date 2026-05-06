@@ -4,18 +4,20 @@ import { useEffect, useState } from "react";
 import type { Route } from "next";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Search, Calendar, X } from "lucide-react";
+import { Search, Calendar, X, Filter } from "lucide-react";
 import { useDebounce } from "use-debounce";
 import { inputClassName } from "@/components/ui/field";
 
 export function TransactionSearch() {
   const t = useTranslations("Transaction");
+  const tCommon = useTranslations("Common");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const [query, setQuery] = useState(searchParams.get("query") || "");
   const [date, setDate] = useState(searchParams.get("date") || "");
+  const [type, setType] = useState(searchParams.get("type") || "");
   const [debouncedQuery] = useDebounce(query, 500);
 
   useEffect(() => {
@@ -33,6 +35,12 @@ export function TransactionSearch() {
       params.delete("date");
     }
 
+    if (type) {
+      params.set("type", type);
+    } else {
+      params.delete("type");
+    }
+
     // Only push if the search string actually changed
     const newSearch = params.toString();
     const currentSearch = searchParams.toString();
@@ -40,15 +48,16 @@ export function TransactionSearch() {
     if (newSearch !== currentSearch) {
       router.push(`${pathname}?${newSearch}` as Route);
     }
-  }, [debouncedQuery, date, pathname, router, searchParams]);
+  }, [debouncedQuery, date, type, pathname, router, searchParams]);
 
   const clearFilters = () => {
     setQuery("");
     setDate("");
+    setType("");
     router.push(pathname as Route);
   };
 
-  const hasFilters = query || date;
+  const hasFilters = query || date || type;
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -75,6 +84,21 @@ export function TransactionSearch() {
           value={date}
           onChange={(e) => setDate(e.target.value)}
         />
+      </div>
+
+      <div className="relative w-full sm:w-48">
+        <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-ink-400 rtl:left-auto rtl:right-3">
+          <Filter className="size-4" />
+        </div>
+        <select
+          className={`${inputClassName} pl-10 rtl:pl-3 rtl:pr-10 appearance-none bg-white`}
+          value={type}
+          onChange={(e) => setType(e.target.value)}
+        >
+          <option value="">{t("allTypes")}</option>
+          <option value="payment">{tCommon("payment")}</option>
+          <option value="expense">{tCommon("expense")}</option>
+        </select>
       </div>
 
       {hasFilters && (

@@ -20,9 +20,10 @@ type ClientForm = {
   name: string;
   phone: string;
   email: string;
+  profit: string;
 };
 
-const emptyForm: ClientForm = { name: "", phone: "", email: "" };
+const emptyForm: ClientForm = { name: "", phone: "", email: "", profit: "" };
 
 export function ClientsPageClient({ 
   initialClients, 
@@ -69,6 +70,7 @@ export function ClientsPageClient({
       name: form.name.trim(),
       phone: form.phone.trim() || null,
       email: form.email.trim() || null,
+      profit: form.profit ? Number(form.profit) : 0,
     };
 
     const { data: userResult, error: authError } = await supabase.auth.getUser();
@@ -153,6 +155,7 @@ export function ClientsPageClient({
       name: client.name,
       phone: client.phone ?? "",
       email: client.email ?? "",
+      profit: client.profit != null ? String(client.profit) : "",
     });
     setError(null);
     setModalOpen(true);
@@ -215,11 +218,15 @@ export function ClientsPageClient({
               {
                 key: "payments",
                 header: t("columns.payments"),
-                cell: (client) => (
-                  <span className="font-medium tabular-nums text-green-700 dark:text-green-400">
-                    {formatCurrency(client.total_payments, locale)}
-                  </span>
-                ),
+                cell: (client) => {
+                  const profitToDeduct = userRole === "superadmin" ? Number(client.profit || 0) : 0;
+                  const adjustedPayments = Math.max(0, client.total_payments - profitToDeduct);
+                  return (
+                    <span className="font-medium tabular-nums text-green-700 dark:text-green-400">
+                      {formatCurrency(adjustedPayments, locale)}
+                    </span>
+                  );
+                },
               },
               {
                 key: "expenses",
@@ -233,12 +240,29 @@ export function ClientsPageClient({
               {
                 key: "balance",
                 header: t("columns.balance"),
-                cell: (client) => (
-                  <span className="font-semibold tabular-nums text-ink-900 dark:text-ink-50">
-                    {formatCurrency(client.balance, locale)}
-                  </span>
-                ),
+                cell: (client) => {
+                  const profitToDeduct = userRole === "superadmin" ? Number(client.profit || 0) : 0;
+                  const adjustedBalance = client.balance - profitToDeduct;
+                  return (
+                    <span className="font-semibold tabular-nums text-ink-900 dark:text-ink-50">
+                      {formatCurrency(adjustedBalance, locale)}
+                    </span>
+                  );
+                },
               },
+              ...(userRole === "superadmin"
+                ? [
+                    {
+                      key: "profit",
+                      header: t("form.profit") || "Profit",
+                      cell: (client: ClientWithSummary) => (
+                        <span className="font-medium tabular-nums text-brass-700 dark:text-brass-400">
+                          {formatCurrency(Number(client.profit || 0), locale)}
+                        </span>
+                      ),
+                    },
+                  ]
+                : []),
               {
                 key: "actions",
                 header: "",
@@ -300,6 +324,19 @@ export function ClientsPageClient({
               />
             </Field>
           </div>
+          {userRole === "superadmin" && (
+            <Field label={t("form.profit") || "Profit Amount"}>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                className={inputClassName}
+                value={form.profit}
+                onChange={(event) => setForm((current) => ({ ...current, profit: event.target.value }))}
+                placeholder="0.00"
+              />
+            </Field>
+          )}
           <div className="flex justify-end gap-3 pt-2">
             <ActionButton type="button" variant="secondary" onClick={() => setModalOpen(false)}>
               {tCommon("cancel")}

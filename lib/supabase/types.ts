@@ -7,6 +7,7 @@ export type Client = {
   name: string;
   phone: string | null;
   email: string | null;
+  profit: number | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -66,12 +67,14 @@ export type Database = {
           name: string;
           phone?: string | null;
           email?: string | null;
+          profit?: number | null;
           created_by?: string | null;
         };
         Update: {
           name?: string;
           phone?: string | null;
           email?: string | null;
+          profit?: number | null;
         };
         Relationships: [
           {

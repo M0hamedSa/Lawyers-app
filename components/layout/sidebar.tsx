@@ -35,12 +35,13 @@ export function Sidebar({
   const tSidebar = useTranslations("Sidebar");
   const tDashboard = useTranslations("Dashboard");
   const tClients = useTranslations("Clients");
+  const tAdmin = useTranslations("Admin");
 
   function getLabel(key: string) {
     if (key === "Dashboard.title") return tDashboard("title");
     if (key === "Clients.title") return tClients("title");
-    if (key === "Admin.allTransactions") return "All Transactions Log";
-    if (key === "Admin.manageUsers") return "Manage Users";
+    if (key === "Admin.allTransactions") return tAdmin("allTransactions");
+    if (key === "Admin.manageUsers") return tAdmin("manageUsers");
     return key;
   }
 

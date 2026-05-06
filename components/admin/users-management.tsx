@@ -38,6 +38,7 @@ export function UsersManagement({
 }) {
   const router = useRouter();
   const locale = useLocale();
+  const t = useTranslations("UserManagement");
   const supabase = useMemo(() => createClient(), []);
   const [users, setUsers] = useState<UserWithAccess[]>(initialUsers);
   const [selectedUser, setSelectedUser] = useState<UserWithAccess | null>(null);
@@ -162,8 +163,8 @@ export function UsersManagement({
       <div className="flex justify-stretch sm:justify-end">
         {currentRole === "superadmin" && (
           <ActionButton className="w-full sm:w-auto" onClick={() => setInviteModalOpen(true)}>
-            <UserPlus className="size-4 mr-2" />
-            Invite New User
+            <UserPlus className="size-4 mr-2 rtl:mr-0 rtl:ml-2" />
+            {t("invite")}
           </ActionButton>
         )}
       </div>
@@ -171,12 +172,12 @@ export function UsersManagement({
         <CardContent>
           <DataTable
             data={users}
-            empty="No users found."
+            empty={t("noUsers")}
             getRowKey={(u) => u.id}
             columns={[
               {
                 key: "full_name",
-                header: "Full Name",
+                header: t("fullName"),
                 cell: (u) => (
                   <div className="flex items-center gap-3">
                     <div className="flex size-8 items-center justify-center rounded-full bg-ink-100 text-ink-700">
@@ -188,7 +189,7 @@ export function UsersManagement({
               },
               {
                 key: "role",
-                header: "Role",
+                header: t("role"),
                 cell: (u) => (
                   <span className="inline-flex rounded-md bg-ink-100 px-2 py-1 text-xs font-semibold capitalize text-ink-700">
                     {u.role}
@@ -197,10 +198,10 @@ export function UsersManagement({
               },
               {
                 key: "clients",
-                header: "Assigned Clients",
+                header: t("assignedClients"),
                 cell: (u) => (
                   <span className="text-sm text-ink-700">
-                    {u.client_access.length} clients
+                    {u.client_access.length}
                   </span>
                 ),
               },
@@ -210,7 +211,7 @@ export function UsersManagement({
                 className: "text-right",
                 cell: (u) => (
                   <ActionButton variant="secondary" onClick={() => openManage(u)}>
-                    Manage Access
+                    {t("manageAccess")}
                   </ActionButton>
                 ),
               },
@@ -220,17 +221,27 @@ export function UsersManagement({
       </Card>
 
       <Modal 
-        title={`Manage ${selectedUser?.full_name}`} 
+        title={t("manageAccess")} 
         open={modalOpen} 
         onClose={() => setModalOpen(false)}
       >
         <div className="space-y-6">
+          <div className="flex items-center gap-3 border-b border-ink-100 pb-4">
+             <div className="flex size-10 items-center justify-center rounded-full bg-brass-100 text-brass-700">
+                <Users className="size-5" />
+             </div>
+             <div>
+                <p className="text-sm font-semibold text-ink-900">{selectedUser?.full_name}</p>
+                <p className="text-xs text-ink-500">{selectedUser?.role}</p>
+             </div>
+          </div>
+
           {currentRole === "superadmin" && (
             <div className="space-y-2 border-b border-ink-100 pb-4">
-              <label className="text-sm font-semibold text-ink-900">User Role</label>
+              <label className="text-sm font-semibold text-ink-900">{t("userRole")}</label>
               {selectedUser?.id === currentUserId && selectedUser?.role === "superadmin" ? (
                 <p className="text-xs text-brass-700 font-medium">
-                  Superadmins cannot change their own role to prevent accidental lockout.
+                  {t("lockoutWarning")}
                 </p>
               ) : (
                 <div className="flex flex-wrap gap-2">
@@ -257,9 +268,9 @@ export function UsersManagement({
           )}
 
           <div className="space-y-4">
-            <label className="text-sm font-semibold text-ink-900">Client Access</label>
+            <label className="text-sm font-semibold text-ink-900">{t("clientAccess")}</label>
             <p className="text-sm text-ink-700">
-              Select which clients this user is allowed to access and manage.
+              {t("clientAccessDesc")}
             </p>
             <div className="max-h-64 overflow-y-auto rounded-md border border-ink-100">
               <div className="divide-y divide-ink-50">
@@ -280,7 +291,7 @@ export function UsersManagement({
                         )}
                       >
                         {togglingId === client.id && <Loader2 className="size-3 animate-spin" />}
-                        {hasAccess ? "Revoke" : "Grant"}
+                        {hasAccess ? t("revoke") : t("grant")}
                       </button>
                     </div>
                   );
@@ -290,20 +301,20 @@ export function UsersManagement({
           </div>
           <div className="flex justify-end pt-2">
             <ActionButton onClick={() => setModalOpen(false)}>
-              Done
+              {t("done")}
             </ActionButton>
           </div>
         </div>
       </Modal>
 
       <Modal
-        title="Invite New User"
+        title={t("invite")}
         open={inviteModalOpen}
         onClose={() => setInviteModalOpen(false)}
       >
         <form onSubmit={handleInvite} className="space-y-4">
           <p className="text-sm text-ink-700">
-            Send an invitation email to a new team member. They will receive a link to set their password.
+            {t("inviteDesc")}
           </p>
 
           {inviteError && (
@@ -312,7 +323,9 @@ export function UsersManagement({
             </div>
           )}
 
-          <Field label="Full Name">
+          </Field>
+
+          <Field label={t("fullName")}>
             <input
               required
               className={inputClassName}
@@ -322,7 +335,7 @@ export function UsersManagement({
             />
           </Field>
 
-          <Field label="Email Address">
+          <Field label={useTranslations("Login")("email")}>
             <input
               required
               type="email"
@@ -334,7 +347,7 @@ export function UsersManagement({
           </Field>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-ink-900">Initial Role</label>
+            <label className="text-sm font-semibold text-ink-900">{t("initialRole")}</label>
             <div className="flex gap-2">
               {(["user", "admin", "superadmin"] as UserRole[]).map((r) => (
                 <button
@@ -360,18 +373,18 @@ export function UsersManagement({
               type="button" 
               onClick={() => setInviteModalOpen(false)}
             >
-              Cancel
+              {t("cancel")}
             </ActionButton>
             <ActionButton type="submit" disabled={submitting}>
               {submitting ? (
                 <>
-                  <Loader2 className="size-4 mr-2 animate-spin" />
-                  Sending...
+                  <Loader2 className="size-4 mr-2 rtl:mr-0 rtl:ml-2 animate-spin" />
+                  {t("sending")}
                 </>
               ) : (
                 <>
-                  <Mail className="size-4 mr-2" />
-                  Send Invitation
+                  <Mail className="size-4 mr-2 rtl:mr-0 rtl:ml-2" />
+                  {t("sendInvite")}
                 </>
               )}
             </ActionButton>

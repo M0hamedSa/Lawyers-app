@@ -37,6 +37,7 @@ create table if not exists public.clients (
   name text not null,
   phone text,
   email text,
+  profit numeric(12, 2) default 0,
   created_by uuid references public.users(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()

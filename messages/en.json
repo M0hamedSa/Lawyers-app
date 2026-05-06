@@ -71,6 +71,7 @@
       "name": "Name",
       "phone": "Phone",
       "email": "Email",
+      "profit": "Profit Amount",
       "saveClient": "Save client"
     }
   },
@@ -110,6 +111,46 @@
     "search": "Search transactions...",
     "filterByDate": "Filter by date",
     "allDates": "All dates",
-    "noResults": "No transactions match your search."
+    "noResults": "No transactions match your search.",
+    "allTypes": "All Types"
+  },
+  "Charts": {
+    "incomeExpense": "Income vs Expense",
+    "distribution": "Transaction Distribution",
+    "balanceHistory": "Account Balance History",
+    "volumeDistribution": "Volume Distribution",
+    "systemIncomeExpense": "System Income vs Expense",
+    "income": "Income",
+    "expense": "Expense",
+    "payments": "Payments",
+    "expenses": "Expenses",
+    "balance": "Balance"
+  },
+  "Admin": {
+    "title": "Admin",
+    "transactionsLog": "All Transactions Log",
+    "allTransactions": "All Transactions Log",
+    "manageUsers": "Manage Users",
+    "exportReport": "Export Report"
+  },
+  "UserManagement": {
+    "invite": "Invite New User",
+    "fullName": "Full Name",
+    "role": "Role",
+    "assignedClients": "Assigned Clients",
+    "manageAccess": "Manage Access",
+    "revoke": "Revoke",
+    "grant": "Grant",
+    "done": "Done",
+    "cancel": "Cancel",
+    "sending": "Sending...",
+    "sendInvite": "Send Invitation",
+    "initialRole": "Initial Role",
+    "clientAccess": "Client Access",
+    "clientAccessDesc": "Select which clients this user is allowed to access and manage.",
+    "inviteDesc": "Send an invitation email to a new team member. They will receive a link to set their password.",
+    "userRole": "User Role",
+    "noUsers": "No users found.",
+    "lockoutWarning": "Superadmins cannot change their own role to prevent accidental lockout."
   }
 }
