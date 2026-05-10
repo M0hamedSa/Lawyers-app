@@ -78,8 +78,8 @@ export function BalanceChart({
             content={({ active, payload, label }) => {
               if (active && payload && payload.length) {
                 return (
-                  <div className="rounded-lg border border-ink-100 bg-white/95 p-3 shadow-2xl backdrop-blur-sm">
-                    <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-ink-500">{label}</p>
+                  <div className="rounded-lg border border-ink-100 bg-white/95 p-3 shadow-2xl backdrop-blur-sm dark:border-ink-700 dark:bg-ink-900/95">
+                    <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-ink-500 dark:text-ink-400">{label}</p>
                     <div className="space-y-2">
                       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                       {payload.map((entry: any) => (
@@ -89,9 +89,9 @@ export function BalanceChart({
                               className="size-2.5 rounded-sm" 
                               style={{ backgroundColor: entry.fill }} 
                             />
-                            <span className="text-ink-600 font-medium">{entry.name}</span>
+                            <span className="text-ink-600 font-medium dark:text-ink-300">{entry.name}</span>
                           </div>
-                          <span className="font-bold text-ink-900">
+                          <span className="font-bold text-ink-900 dark:text-ink-50">
                             {formatCurrency(entry.value, locale)}
                           </span>
                         </div>

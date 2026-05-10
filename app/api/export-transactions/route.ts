@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import puppeteer from 'puppeteer';
 import { getAllTransactions, getUserRole } from '@/lib/supabase/queries';
-import { formatCurrency, formatDate } from '@/lib/utils';
 
 export async function GET(request: Request) {
   try {

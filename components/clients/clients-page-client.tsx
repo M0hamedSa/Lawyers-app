@@ -357,7 +357,7 @@ export function ClientsPageClient({
 
       <Modal title={t("deleteClient") || "Delete Client"} open={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
         <div className="space-y-6">
-          <p className="text-ink-700">
+          <p className="text-ink-700 dark:text-ink-300">
             {t("deleteConfirm") || "Are you sure you want to delete this client? This action cannot be undone and will delete all associated transactions."}
           </p>
           <div className="flex justify-end gap-3">

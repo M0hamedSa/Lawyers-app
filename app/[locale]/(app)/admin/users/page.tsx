@@ -1,15 +1,21 @@
 import { getAllUsers, getAdminClients, getCurrentUser } from "@/lib/supabase/queries";
 import { UsersManagement } from "@/components/admin/users-management";
 import { getTranslations } from "next-intl/server";
+import { redirect } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminUsersPage() {
+export default async function AdminUsersPage({ 
+  params 
+}: { 
+  params: Promise<{ locale: string }> 
+}) {
+  const { locale } = await params;
   const currentUser = await getCurrentUser();
   const role = currentUser?.role;
   
   if (role !== "admin" && role !== "superadmin") {
-    redirect("/dashboard");
+    redirect({ href: "/dashboard", locale: locale as "en" | "ar" });
   }
 
   const [users, clients] = await Promise.all([
@@ -29,7 +35,7 @@ export default async function AdminUsersPage() {
       <UsersManagement 
         initialUsers={users} 
         allClients={clients} 
-        currentRole={role} 
+        currentRole={role || null} 
         currentUserId={currentUser?.id || ""} 
       />
     </div>

@@ -4,12 +4,12 @@ import { useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { UserRole } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import { ActionButton } from "@/components/ui/action-button";
 import { Modal } from "@/components/ui/modal";
 import { useRouter } from "@/i18n/routing";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { UserPlus, Users, Mail, Loader2 } from "lucide-react";
 import { Field, inputClassName } from "@/components/ui/field";
 
@@ -25,13 +25,13 @@ type ClientMinimal = {
   name: string;
 };
 
-export function UsersManagement({ 
-  initialUsers, 
+export function UsersManagement({
+  initialUsers,
   allClients,
   currentRole,
   currentUserId
-}: { 
-  initialUsers: UserWithAccess[]; 
+}: {
+  initialUsers: UserWithAccess[];
   allClients: ClientMinimal[];
   currentRole: "superadmin" | "admin" | "user" | null;
   currentUserId: string;
@@ -39,6 +39,7 @@ export function UsersManagement({
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("UserManagement");
+  const tLogin = useTranslations("Login");
   const supabase = useMemo(() => createClient(), []);
   const [users, setUsers] = useState<UserWithAccess[]>(initialUsers);
   const [selectedUser, setSelectedUser] = useState<UserWithAccess | null>(null);
@@ -65,7 +66,7 @@ export function UsersManagement({
       .eq("id", selectedUser.id);
 
     if (!error) {
-      setUsers(prev => prev.map(u => 
+      setUsers(prev => prev.map(u =>
         u.id === selectedUser.id ? { ...u, role: newRole } : u
       ));
       setSelectedUser(prev => prev ? { ...prev, role: newRole } : null);
@@ -126,14 +127,14 @@ export function UsersManagement({
         .eq("client_id", clientId);
 
       if (!error) {
-        setUsers(prev => prev.map(u => 
-          u.id === selectedUser.id 
+        setUsers(prev => prev.map(u =>
+          u.id === selectedUser.id
             ? { ...u, client_access: u.client_access.filter(a => a.client_id !== clientId) }
             : u
         ));
-        setSelectedUser(prev => prev ? { 
-          ...prev, 
-          client_access: prev.client_access.filter(a => a.client_id !== clientId) 
+        setSelectedUser(prev => prev ? {
+          ...prev,
+          client_access: prev.client_access.filter(a => a.client_id !== clientId)
         } : null);
       }
     } else {
@@ -143,14 +144,14 @@ export function UsersManagement({
         .insert({ user_id: selectedUser.id, client_id: clientId });
 
       if (!error) {
-        setUsers(prev => prev.map(u => 
-          u.id === selectedUser.id 
+        setUsers(prev => prev.map(u =>
+          u.id === selectedUser.id
             ? { ...u, client_access: [...u.client_access, { client_id: clientId }] }
             : u
         ));
-        setSelectedUser(prev => prev ? { 
-          ...prev, 
-          client_access: [...prev.client_access, { client_id: clientId }] 
+        setSelectedUser(prev => prev ? {
+          ...prev,
+          client_access: [...prev.client_access, { client_id: clientId }]
         } : null);
       }
     }
@@ -183,7 +184,7 @@ export function UsersManagement({
                     <div className="flex size-8 items-center justify-center rounded-full bg-ink-100 text-ink-700">
                       <Users className="size-4" />
                     </div>
-                    <span className="font-medium text-ink-900">{u.full_name}</span>
+                    <span className="font-medium text-ink-900 dark:text-ink-50">{u.full_name}</span>
                   </div>
                 ),
               },
@@ -200,7 +201,7 @@ export function UsersManagement({
                 key: "clients",
                 header: t("assignedClients"),
                 cell: (u) => (
-                  <span className="text-sm text-ink-700">
+                  <span className="text-sm text-ink-700 dark:text-ink-300">
                     {u.client_access.length}
                   </span>
                 ),
@@ -220,25 +221,25 @@ export function UsersManagement({
         </CardContent>
       </Card>
 
-      <Modal 
-        title={t("manageAccess")} 
-        open={modalOpen} 
+      <Modal
+        title={t("manageAccess")}
+        open={modalOpen}
         onClose={() => setModalOpen(false)}
       >
         <div className="space-y-6">
           <div className="flex items-center gap-3 border-b border-ink-100 pb-4">
-             <div className="flex size-10 items-center justify-center rounded-full bg-brass-100 text-brass-700">
-                <Users className="size-5" />
-             </div>
-             <div>
-                <p className="text-sm font-semibold text-ink-900">{selectedUser?.full_name}</p>
-                <p className="text-xs text-ink-500">{selectedUser?.role}</p>
-             </div>
+            <div className="flex size-10 items-center justify-center rounded-full bg-brass-100 text-brass-700">
+              <Users className="size-5" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-ink-900 dark:text-ink-50">{selectedUser?.full_name}</p>
+              <p className="text-xs text-ink-500">{selectedUser?.role}</p>
+            </div>
           </div>
 
           {currentRole === "superadmin" && (
             <div className="space-y-2 border-b border-ink-100 pb-4">
-              <label className="text-sm font-semibold text-ink-900">{t("userRole")}</label>
+              <label className="text-sm font-semibold text-ink-900 dark:text-ink-50">{t("userRole")}</label>
               {selectedUser?.id === currentUserId && selectedUser?.role === "superadmin" ? (
                 <p className="text-xs text-brass-700 font-medium">
                   {t("lockoutWarning")}
@@ -254,7 +255,7 @@ export function UsersManagement({
                       className={cn(
                         "flex min-w-[calc(50%-0.25rem)] flex-1 items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition sm:min-w-0",
                         selectedUser?.role === r
-                          ? "border-ink-900 bg-ink-900 text-white dark:border-brass-500 dark:bg-brass-600 dark:text-ink-900"
+                          ? "border-ink-900 bg-ink-900 text-white dark:border-brass-400 dark:bg-brass-500 dark:text-ink-900"
                           : "border-ink-200 text-ink-700 hover:bg-ink-50 dark:border-ink-600 dark:text-ink-300 dark:hover:bg-ink-800"
                       )}
                     >
@@ -268,17 +269,17 @@ export function UsersManagement({
           )}
 
           <div className="space-y-4">
-            <label className="text-sm font-semibold text-ink-900">{t("clientAccess")}</label>
-            <p className="text-sm text-ink-700">
+            <label className="text-sm font-semibold text-ink-900 dark:text-ink-50">{t("clientAccess")}</label>
+            <p className="text-sm text-ink-700 dark:text-ink-300">
               {t("clientAccessDesc")}
             </p>
-            <div className="max-h-64 overflow-y-auto rounded-md border border-ink-100">
-              <div className="divide-y divide-ink-50">
+            <div className="max-h-64 overflow-y-auto rounded-md border border-ink-100 dark:border-ink-700">
+              <div className="divide-y divide-ink-50 dark:divide-ink-700">
                 {allClients.map((client) => {
                   const hasAccess = selectedUser?.client_access.some(a => a.client_id === client.id);
                   return (
-                    <div key={client.id} className="flex items-center justify-between p-3 hover:bg-ink-50">
-                      <span className="text-sm font-medium text-ink-900">{client.name}</span>
+                    <div key={client.id} className="flex items-center justify-between p-3 hover:bg-ink-50 dark:hover:bg-ink-800">
+                      <span className="text-sm font-medium text-ink-900 dark:text-ink-100">{client.name}</span>
                       <button
                         type="button"
                         disabled={submitting}
@@ -286,8 +287,8 @@ export function UsersManagement({
                         className={cn(
                           "flex items-center gap-2 rounded px-3 py-1 text-xs font-semibold transition",
                           hasAccess
-                            ? "bg-red-50 text-red-700 hover:bg-red-100"
-                            : "bg-green-50 text-green-700 hover:bg-green-100"
+                            ? "bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400"
+                            : "bg-green-50 text-green-700 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400"
                         )}
                       >
                         {togglingId === client.id && <Loader2 className="size-3 animate-spin" />}
@@ -313,84 +314,82 @@ export function UsersManagement({
         onClose={() => setInviteModalOpen(false)}
       >
         <form onSubmit={handleInvite} className="space-y-4">
-          <p className="text-sm text-ink-700">
+          <p className="text-sm text-ink-700 dark:text-ink-300">
             {t("inviteDesc")}
           </p>
 
           {inviteError && (
-            <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+            <div className="rounded-md bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">
               {inviteError}
             </div>
           )}
 
-          </Field>
+        <Field label={t("fullName")} className="dark:text-ink-50">
+          <input
+            required
+            className={inputClassName}
+            value={inviteForm.full_name}
+            onChange={(e) => setInviteForm({ ...inviteForm, full_name: e.target.value })}
+            placeholder="e.g. John Doe"
+          />
+        </Field>
 
-          <Field label={t("fullName")}>
-            <input
-              required
-              className={inputClassName}
-              value={inviteForm.full_name}
-              onChange={(e) => setInviteForm({ ...inviteForm, full_name: e.target.value })}
-              placeholder="e.g. John Doe"
-            />
-          </Field>
+        <Field label={tLogin("email")} className="dark:text-ink-50">
+          <input
+            required
+            type="email"
+            className={inputClassName}
+            value={inviteForm.email}
+            onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
+            placeholder="john@example.com"
+          />
+        </Field>
 
-          <Field label={useTranslations("Login")("email")}>
-            <input
-              required
-              type="email"
-              className={inputClassName}
-              value={inviteForm.email}
-              onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
-              placeholder="john@example.com"
-            />
-          </Field>
-
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-ink-900">{t("initialRole")}</label>
-            <div className="flex gap-2">
-              {(["user", "admin", "superadmin"] as UserRole[]).map((r) => (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => setInviteForm({ ...inviteForm, role: r })}
-                  className={cn(
-                    "flex-1 rounded-md border px-3 py-2 text-sm font-medium transition",
-                    inviteForm.role === r
-                      ? "border-ink-900 bg-ink-900 text-white"
-                      : "border-ink-200 text-ink-700 hover:bg-ink-50"
-                  )}
-                >
-                  {r.charAt(0).toUpperCase() + r.slice(1)}
-                </button>
-              ))}
-            </div>
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-ink-900 dark:text-ink-50">{t("initialRole")}</label>
+          <div className="flex gap-2">
+            {(["user", "admin", "superadmin"] as UserRole[]).map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => setInviteForm({ ...inviteForm, role: r })}
+                className={cn(
+                  "flex-1 rounded-md border px-3 py-2 text-sm font-medium transition",
+                  inviteForm.role === r
+                    ? "border-ink-900 bg-ink-900 text-white"
+                    : "border-ink-200 text-ink-700 hover:bg-ink-50"
+                )}
+              >
+                {r.charAt(0).toUpperCase() + r.slice(1)}
+              </button>
+            ))}
           </div>
+        </div>
 
-          <div className="flex justify-end gap-3 pt-4">
-            <ActionButton 
-              variant="secondary" 
-              type="button" 
-              onClick={() => setInviteModalOpen(false)}
-            >
-              {t("cancel")}
-            </ActionButton>
-            <ActionButton type="submit" disabled={submitting}>
-              {submitting ? (
-                <>
-                  <Loader2 className="size-4 mr-2 rtl:mr-0 rtl:ml-2 animate-spin" />
-                  {t("sending")}
-                </>
-              ) : (
-                <>
-                  <Mail className="size-4 mr-2 rtl:mr-0 rtl:ml-2" />
-                  {t("sendInvite")}
-                </>
-              )}
-            </ActionButton>
-          </div>
-        </form>
-      </Modal>
-    </div>
+        <div className="flex justify-end gap-3 pt-4">
+          <ActionButton
+            variant="secondary"
+            type="button"
+            onClick={() => setInviteModalOpen(false)}
+          >
+            {t("cancel")}
+          </ActionButton>
+          <ActionButton type="submit" disabled={submitting}>
+            {submitting ? (
+              <>
+                <Loader2 className="size-4 mr-2 rtl:mr-0 rtl:ml-2 animate-spin" />
+                {t("sending")}
+              </>
+            ) : (
+              <>
+                <Mail className="size-4 mr-2 rtl:mr-0 rtl:ml-2" />
+                {t("sendInvite")}
+              </>
+            )}
+          </ActionButton>
+        </div>
+      </form>
+    </Modal>
+    </div >
   );
 }

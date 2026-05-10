@@ -16,7 +16,7 @@ import {
   Area,
   Tooltip,
 } from "recharts";
-import { formatCurrency, cn } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import { useLocale, useTranslations } from "next-intl";
 import { LedgerTransaction } from "@/lib/supabase/types";
 
@@ -63,7 +63,14 @@ export function TransactionDistributionChart({ transactions }: { transactions: L
           </Pie>
           <RechartsTooltip 
             formatter={(value: number) => formatCurrency(value, locale)}
-            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', textAlign: isRtl ? 'right' : 'left' }}
+            contentStyle={{ 
+              borderRadius: '8px', 
+              border: 'none', 
+              boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', 
+              textAlign: isRtl ? 'right' : 'left',
+              backgroundColor: 'var(--tooltip-bg, #fff)',
+              color: 'var(--tooltip-text, #111)'
+            }}
           />
           <Legend verticalAlign="bottom" height={36} iconType="circle" />
         </PieChart>
@@ -111,9 +118,16 @@ export function IncomeExpenseBarChart({ transactions }: { transactions: LedgerTr
             orientation={isRtl ? "right" : "left"}
           />
           <Tooltip 
-            cursor={{ fill: '#f9fafb' }}
+            cursor={{ fill: '#f9fafb', opacity: 0.1 }}
             formatter={(value: number) => formatCurrency(value, locale)}
-            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', textAlign: isRtl ? 'right' : 'left' }}
+            contentStyle={{ 
+              borderRadius: '8px', 
+              border: 'none', 
+              boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', 
+              textAlign: isRtl ? 'right' : 'left',
+              backgroundColor: 'var(--tooltip-bg, #fff)',
+              color: 'var(--tooltip-text, #111)'
+            }}
           />
           <Legend iconType="circle" />
           <Bar dataKey="payments" fill={COLORS.payment} radius={[4, 4, 0, 0]} name={t("income")} />
@@ -166,7 +180,14 @@ export function BalanceHistoryChart({ transactions }: { transactions: LedgerTran
           />
           <Tooltip 
             formatter={(value: number) => formatCurrency(value, locale)}
-            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', textAlign: isRtl ? 'right' : 'left' }}
+            contentStyle={{ 
+              borderRadius: '8px', 
+              border: 'none', 
+              boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', 
+              textAlign: isRtl ? 'right' : 'left',
+              backgroundColor: 'var(--tooltip-bg, #fff)',
+              color: 'var(--tooltip-text, #111)'
+            }}
           />
           <Area 
             type="monotone" 

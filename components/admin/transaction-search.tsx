@@ -91,7 +91,7 @@ export function TransactionSearch() {
           <Filter className="size-4" />
         </div>
         <select
-          className={`${inputClassName} pl-10 rtl:pl-3 rtl:pr-10 appearance-none bg-white`}
+          className={`${inputClassName} pl-10 rtl:pl-3 rtl:pr-10 appearance-none`}
           value={type}
           onChange={(e) => setType(e.target.value)}
         >

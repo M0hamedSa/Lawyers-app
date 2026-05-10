@@ -12,6 +12,13 @@
   color-scheme: dark;
   background: #121210;
   color: #f4f4ee;
+  --tooltip-bg: #161611;
+  --tooltip-text: #f4f4ee;
+}
+
+:root {
+  --tooltip-bg: #ffffff;
+  --tooltip-text: #161611;
 }
 
 * {
