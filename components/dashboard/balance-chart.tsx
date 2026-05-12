@@ -12,7 +12,7 @@ import {
   Legend,
 } from "recharts";
 import { formatCurrency } from "@/lib/utils";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 export function BalanceChart({
   data,
@@ -20,6 +20,7 @@ export function BalanceChart({
   data: { month: string; payments: number; expenses: number }[];
 }) {
   const locale = useLocale();
+  const t = useTranslations("Charts");
   const isRtl = locale.startsWith("ar");
   const [compact, setCompact] = useState(true);
 
@@ -46,11 +47,12 @@ export function BalanceChart({
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
-          margin={
-            compact
-              ? { top: 4, right: 2, left: isRtl ? 0 : 0, bottom: 28 }
-              : { top: 12, right: 12, left: isRtl ? 8 : 0, bottom: 12 }
-          }
+          margin={{ 
+            top: 10, 
+            right: isRtl ? 85 : 10, 
+            left: isRtl ? 10 : 85, 
+            bottom: 0 
+          }}
           barGap={compact ? 4 : 8}
         >
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
@@ -64,14 +66,14 @@ export function BalanceChart({
             reversed={isRtl}
             interval="preserveStartEnd"
           />
-          <YAxis
-            stroke="#9CA3AF"
-            width={compact ? 44 : 56}
-            fontSize={compact ? 10 : 12}
-            tickLine={false}
-            axisLine={false}
-            orientation={isRtl ? "right" : "left"}
+          <YAxis 
+            fontSize={11} 
+            tickLine={false} 
+            axisLine={false} 
+            width={compact ? 60 : 85}
             tickFormatter={(value) => formatCurrency(value, locale, true)}
+            tick={{ fill: '#6b7280' }}
+            orientation={isRtl ? "right" : "left"}
           />
           <Tooltip
             cursor={{ fill: "#F9FAFB", opacity: 0.4 }}
@@ -111,21 +113,21 @@ export function BalanceChart({
             iconSize={compact ? 8 : 10}
             wrapperStyle={{ fontSize: compact ? 9 : 11 }}
             formatter={(value) => (
-              <span className="font-bold uppercase tracking-wider text-ink-700 dark:text-ink-300">
+              <span className={`font-bold uppercase tracking-wider text-ink-700 dark:text-ink-300 ${isRtl ? 'mr-1.5' : 'ml-1.5'}`}>
                 {value}
               </span>
             )}
           />
           <Bar
             dataKey="payments"
-            name="Payments"
+            name={t("payments")}
             fill="#10B981"
             radius={[3, 3, 0, 0]}
             barSize={compact ? 14 : 22}
           />
           <Bar
             dataKey="expenses"
-            name="Expenses"
+            name={t("expenses")}
             fill="#EF4444"
             radius={[3, 3, 0, 0]}
             barSize={compact ? 14 : 22}

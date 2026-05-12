@@ -165,6 +165,7 @@ export async function GET(request: Request) {
             font-size: 18px;
             font-weight: 700;
             color: var(--ink-900);
+            white-space: nowrap;
           }
           .summary-value.income { color: #059669; }
           .summary-value.expense { color: #dc2626; }
@@ -184,6 +185,7 @@ export async function GET(request: Request) {
             text-align: ${isRtl ? 'right' : 'left'};
             border-bottom: 2px solid var(--ink-100);
             letter-spacing: 0.05em;
+            white-space: nowrap;
           }
           td { 
             padding: 14px 12px; 
@@ -195,6 +197,7 @@ export async function GET(request: Request) {
             text-align: ${isRtl ? 'left' : 'right'};
             font-weight: 600;
             font-family: ${isRtl ? "'Cairo', sans-serif" : "'Inter', sans-serif"};
+            white-space: nowrap;
           }
           .payment { color: #059669; }
           .expense { color: #dc2626; }

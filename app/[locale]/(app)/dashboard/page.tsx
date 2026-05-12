@@ -10,6 +10,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   const { locale } = await params;
   const data = await getDashboardData();
   const t = await getTranslations("Dashboard");
+  const t_charts = await getTranslations("Charts");
 
   return (
     <div className="space-y-6">
@@ -31,7 +32,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
 
       <Card>
         <CardHeader>
-          <CardTitle>Payments vs expenses over time</CardTitle>
+          <CardTitle>{locale === 'ar' ? t_charts("incomeExpense") : "Payments vs Expenses over time"}</CardTitle>
         </CardHeader>
         <CardContent>
           <BalanceChart data={data.chartData} />

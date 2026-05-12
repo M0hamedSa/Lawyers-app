@@ -72,7 +72,14 @@ export function TransactionDistributionChart({ transactions }: { transactions: L
               color: 'var(--tooltip-text, #111)'
             }}
           />
-          <Legend verticalAlign="bottom" height={36} iconType="circle" />
+          <Legend 
+            verticalAlign="bottom" 
+            height={36} 
+            iconType="circle" 
+            formatter={(value) => (
+              <span className={`text-sm ${isRtl ? 'mr-1.5' : 'ml-1.5'}`}>{value}</span>
+            )}
+          />
         </PieChart>
       </ResponsiveContainer>
     </div>
@@ -99,7 +106,12 @@ export function IncomeExpenseBarChart({ transactions }: { transactions: LedgerTr
   return (
     <div className="h-72 w-full pt-4" dir="ltr">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 10, right: 10, left: isRtl ? 20 : -20, bottom: 0 }}>
+        <BarChart data={data} margin={{ 
+          top: 10, 
+          right: isRtl ? 80 : 10, 
+          left: isRtl ? 10 : 0, 
+          bottom: 0 
+        }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
           <XAxis 
             dataKey="month" 
@@ -113,6 +125,7 @@ export function IncomeExpenseBarChart({ transactions }: { transactions: LedgerTr
             fontSize={11} 
             tickLine={false} 
             axisLine={false} 
+            width={80}
             tickFormatter={(value) => formatCurrency(value, locale, true)}
             tick={{ fill: '#6b7280' }}
             orientation={isRtl ? "right" : "left"}
@@ -129,7 +142,12 @@ export function IncomeExpenseBarChart({ transactions }: { transactions: LedgerTr
               color: 'var(--tooltip-text, #111)'
             }}
           />
-          <Legend iconType="circle" />
+          <Legend 
+            iconType="circle" 
+            formatter={(value) => (
+              <span className={`text-sm ${isRtl ? 'mr-1.5' : 'ml-1.5'}`}>{value}</span>
+            )}
+          />
           <Bar dataKey="payments" fill={COLORS.payment} radius={[4, 4, 0, 0]} name={t("income")} />
           <Bar dataKey="expenses" fill={COLORS.expense} radius={[4, 4, 0, 0]} name={t("expense")} />
         </BarChart>
@@ -153,7 +171,12 @@ export function BalanceHistoryChart({ transactions }: { transactions: LedgerTran
   return (
     <div className="h-72 w-full pt-4" dir="ltr">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data} margin={{ top: 10, right: 10, left: isRtl ? 20 : -20, bottom: 0 }}>
+        <AreaChart data={data} margin={{ 
+          top: 10, 
+          right: isRtl ? 80 : 10, 
+          left: isRtl ? 10 : 0, 
+          bottom: 0 
+        }}>
           <defs>
             <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor={COLORS.balance} stopOpacity={0.2} />
@@ -174,6 +197,7 @@ export function BalanceHistoryChart({ transactions }: { transactions: LedgerTran
             fontSize={11} 
             tickLine={false} 
             axisLine={false}
+            width={80}
             tickFormatter={(value) => formatCurrency(value, locale, true)}
             tick={{ fill: '#6b7280' }}
             orientation={isRtl ? "right" : "left"}
