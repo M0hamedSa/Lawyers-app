@@ -277,9 +277,17 @@ export async function GET(request: Request) {
     let browser;
     if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
       // When using @sparticuz/chromium-min, we must provide a remote URL to the chromium binary pack
-      const CHROMIUM_PACK_URL = 'https://github.com/Sparticuz/chromium/releases/download/v148.0.0/chromium-v148.0.0-pack.tar';
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const executablePath = await (chromium as any).executablePath(CHROMIUM_PACK_URL);
+      // We use x64 as it's the standard for Vercel serverless functions
+      const CHROMIUM_PACK_URL = 'https://github.com/Sparticuz/chromium/releases/download/v148.0.0/chromium-v148.0.0-pack.x64.tar';
+      
+      let executablePath;
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        executablePath = await (chromium as any).executablePath(CHROMIUM_PACK_URL);
+      } catch (pathError) {
+        console.error('Failed to get executable path:', pathError);
+        throw new Error('Chromium binary path error: ' + (pathError as Error).message);
+      }
       
       browser = await puppeteer.launch({
         args: chromium.args,
