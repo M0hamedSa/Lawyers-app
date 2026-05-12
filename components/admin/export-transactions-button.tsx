@@ -3,12 +3,13 @@
 import { useState } from "react";
 import { Download, Loader2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 export function ExportTransactionsButton({ clientId }: { clientId?: string }) {
   const [isExporting, setIsExporting] = useState(false);
   const searchParams = useSearchParams();
   const t = useTranslations("Admin");
+  const locale = useLocale();
 
   const handleExport = async () => {
     try {
@@ -24,6 +25,8 @@ export function ExportTransactionsButton({ clientId }: { clientId?: string }) {
       const type = searchParams.get("type");
       if (type) url.searchParams.set("type", type);
 
+      url.searchParams.set("locale", locale);
+
       if (clientId) {
         url.searchParams.set("client_id", clientId);
       }
@@ -35,13 +38,20 @@ export function ExportTransactionsButton({ clientId }: { clientId?: string }) {
       const downloadUrl = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = downloadUrl;
-      a.download = clientId ? `client_${clientId}_report.pdf` : "transactions_report.pdf";
+      
+      // Determine filename based on locale
+      const filename = clientId 
+        ? (locale === 'ar' ? `تقرير_عميل_${clientId}.pdf` : `client_${clientId}_report.pdf`)
+        : (locale === 'ar' ? "تقرير_المعاملات.pdf" : "transactions_report.pdf");
+      
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       a.remove();
       window.URL.revokeObjectURL(downloadUrl);
     } catch (error) {
       console.error(error);
+      alert(locale === 'ar' ? "فشل تصدير التقرير. يرجى المحاولة مرة أخرى." : "Failed to export report. Please try again.");
     } finally {
       setIsExporting(false);
     }

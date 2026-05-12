@@ -75,17 +75,18 @@ export async function getClientTransactions(clientId: string) {
 }
 
 export async function getDashboardData() {
-  const clients = await getClients();
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("transactions")
-    .select("date, amount, type")
-    .order("date", { ascending: true });
+  const [clients, { data: transactionsData, error: transactionsError }] = await Promise.all([
+    getClients(),
+    (await createClient())
+      .from("transactions")
+      .select("date, amount, type")
+      .order("date", { ascending: true })
+  ]);
 
-  if (error) throw new Error(error.message);
+  if (transactionsError) throw new Error(transactionsError.message);
 
   const byMonth = new Map<string, { month: string; payments: number; expenses: number }>();
-  for (const transaction of data ?? []) {
+  for (const transaction of transactionsData ?? []) {
     const month = String(transaction.date).slice(0, 7);
     const row = byMonth.get(month) ?? { month, payments: 0, expenses: 0 };
     if (transaction.type === "payment") row.payments += Number(transaction.amount);

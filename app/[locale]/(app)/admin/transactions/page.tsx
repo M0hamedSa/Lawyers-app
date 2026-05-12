@@ -1,7 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { getLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
-import { getAllTransactions, getUserRole } from "@/lib/supabase/queries";
+import { getUserRole } from "@/lib/supabase/queries";
+import { createClient } from "@/lib/supabase/server";
 import { Link } from "@/i18n/routing";
 import { encodeId } from "@/lib/id-utils";
 import type { Route } from "next";
@@ -31,11 +32,21 @@ export default async function AdminTransactionsPage({
     redirect("/dashboard");
   }
 
-  const allTransactions = await getAllTransactions();
-  
-  // Filter transactions on the server
-  let transactions = allTransactions;
-  
+  const supabase = await createClient();
+  let dbQuery = supabase
+    .from("transactions")
+    .select("*, clients(name, profit), users!transactions_created_by_fkey(full_name)")
+    .order("date", { ascending: false });
+
+  if (date) dbQuery = dbQuery.eq('date', date);
+  if (type === 'payment' || type === 'expense') {
+    dbQuery = dbQuery.eq('type', type);
+  }
+
+  const { data: transactionsData, error: dbError } = await dbQuery;
+  if (dbError) throw new Error(dbError.message);
+
+  let transactions = transactionsData || [];
   if (query) {
     const q = query.toLowerCase();
     transactions = transactions.filter(t => 
@@ -43,14 +54,6 @@ export default async function AdminTransactionsPage({
       (t.users?.full_name || "").toLowerCase().includes(q) ||
       (t.description || "").toLowerCase().includes(q)
     );
-  }
-  
-  if (date) {
-    transactions = transactions.filter(t => t.date === date);
-  }
-
-  if (type && (type === 'payment' || type === 'expense')) {
-    transactions = transactions.filter(t => t.type === type);
   }
 
   const locale = await getLocale();
