@@ -279,9 +279,11 @@ export async function GET(request: Request) {
       const executablePath = await chromium.executablePath();
       browser = await puppeteer.launch({
         args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        defaultViewport: (chromium as any).defaultViewport,
         executablePath,
-        headless: chromium.headless,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        headless: (chromium as any).headless,
       });
     } else {
       // Local development
@@ -293,7 +295,8 @@ export async function GET(request: Request) {
     }
 
     const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0' as any });
     
     const pdfBuffer = await page.pdf({ 
       format: 'A4', 
