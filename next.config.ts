@@ -5,6 +5,9 @@ const withNextIntl = createNextIntlPlugin();
 
 const nextConfig: NextConfig = {
   typedRoutes: true,
+  outputFileTracingIncludes: {
+    '/api/export-transactions': ['./fonts/**/*'],
+  },
 };
 
 export default withNextIntl(nextConfig);

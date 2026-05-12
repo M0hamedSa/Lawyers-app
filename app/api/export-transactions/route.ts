@@ -276,6 +276,17 @@ export async function GET(request: Request) {
     // Puppeteer launch options
     let browser;
     if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
+      // Register Arabic font for production
+      try {
+        const fontPath = path.join(process.cwd(), 'fonts', 'Cairo.ttf');
+        if (fs.existsSync(fontPath)) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (chromium as any).font(fontPath);
+        }
+      } catch (fontError) {
+        console.error('Failed to register font:', fontError);
+      }
+
       // When using @sparticuz/chromium-min, we must provide a remote URL to the chromium binary pack
       // We use x64 as it's the standard for Vercel serverless functions
       const CHROMIUM_PACK_URL = 'https://github.com/Sparticuz/chromium/releases/download/v148.0.0/chromium-v148.0.0-pack.x64.tar';
@@ -290,7 +301,7 @@ export async function GET(request: Request) {
       }
       
       browser = await puppeteer.launch({
-        args: chromium.args,
+        args: [...chromium.args, '--font-render-hinting=none'],
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         defaultViewport: (chromium as any).defaultViewport,
         executablePath,
@@ -309,6 +320,9 @@ export async function GET(request: Request) {
     const page = await browser.newPage();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' as any });
+    
+    // Wait for fonts to be loaded
+    await page.evaluateHandle('document.fonts.ready');
     
     const pdfBuffer = await page.pdf({ 
       format: 'A4', 
