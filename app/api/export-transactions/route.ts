@@ -194,7 +194,7 @@ export async function GET(request: Request) {
           .amount-cell {
             text-align: ${isRtl ? 'left' : 'right'};
             font-weight: 600;
-            font-family: 'Inter', sans-serif; /* Keep numbers clean */
+            font-family: ${isRtl ? "'Cairo', sans-serif" : "'Inter', sans-serif"};
           }
           .payment { color: #059669; }
           .expense { color: #dc2626; }
@@ -224,15 +224,15 @@ export async function GET(request: Request) {
         <div class="summary-grid">
           <div class="summary-card">
             <div class="summary-label">${t('Dashboard.totalPayments')}</div>
-            <div class="summary-value income">+${totalIncome.toLocaleString(locale, { style: 'currency', currency: 'USD' })}</div>
+            <div class="summary-value income">+${totalIncome.toLocaleString(locale, { style: 'currency', currency: 'EGP' })}</div>
           </div>
           <div class="summary-card">
             <div class="summary-label">${t('Dashboard.totalExpenses')}</div>
-            <div class="summary-value expense">-${totalExpense.toLocaleString(locale, { style: 'currency', currency: 'USD' })}</div>
+            <div class="summary-value expense">-${totalExpense.toLocaleString(locale, { style: 'currency', currency: 'EGP' })}</div>
           </div>
           <div class="summary-card">
             <div class="summary-label">${t('Dashboard.totalBalance')}</div>
-            <div class="summary-value">${(totalIncome - totalExpense).toLocaleString(locale, { style: 'currency', currency: 'USD' })}</div>
+            <div class="summary-value">${(totalIncome - totalExpense).toLocaleString(locale, { style: 'currency', currency: 'EGP' })}</div>
           </div>
           <div class="summary-card">
             <div class="summary-label">${t('ClientDetails.transactions')}</div>
@@ -253,12 +253,12 @@ export async function GET(request: Request) {
           <tbody>
             ${transactionsToReport.map(t_row => `
               <tr>
-                <td>${t_row.date}</td>
-                <td>${t_row.clients.name}</td>
+                <td>${new Date(t_row.date).toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' })}</td>
+                <td>${t_row.clients?.name || ''}</td>
                 <td>${t(t_row.type === 'payment' ? 'Common.payment' : 'Common.expense')}</td>
                 <td>${t_row.description}</td>
                 <td class="amount-cell ${t_row.type === 'payment' ? 'payment' : 'expense'}">
-                  ${t_row.type === 'payment' ? '+' : '-'}${Number(t_row.amount).toLocaleString(locale, { style: 'currency', currency: 'USD' })}
+                  ${t_row.type === 'payment' ? '+' : '-'}${Number(t_row.amount).toLocaleString(locale, { style: 'currency', currency: 'EGP' })}
                 </td>
               </tr>
             `).join('')}
